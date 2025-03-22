@@ -71,6 +71,14 @@ dependencies {
     // Charts
     implementation(libs.composeVico)
     implementation(libs.composeVico.m3)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    // Lifecycle components
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 }
 
 kapt {

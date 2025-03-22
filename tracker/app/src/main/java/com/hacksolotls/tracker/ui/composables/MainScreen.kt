@@ -86,40 +86,40 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = h
                     // FilledGraph based on last month
 
                     val data = listOf(1f, 2.5f, 1.8f, 3.4f, 2.2f)
-                    Chart(
-                        chart = lineChart(
-                            lines = listOf(
-                                LineSpec(
-                                    //lineColor = lineColor,
-                                    //lineThicknessDp = lineThicknessDp,
-                                    //lineBackgroundShader = lineBackgroundShader,
-                                    //lineCap = lineCap,
-                                    //point = point,
-                                    //pointSizeDp = pointSizeDp,
-                                    //dataLabel = dataLabel,
-                                    //dataLabelVerticalPosition = dataLabelVerticalPosition,
-                                    //dataLabelValueFormatter = dataLabelValueFormatter,
-                                    //dataLabelRotationDegrees = dataLabelRotationDegrees,
-                                    //pointPosition = pointPosition,
-                                    //pointConnector = DefaultPointConnector(cubicStrength = cubicStrength),
-                                )
-                            )
-                        ),
-                        model = TODO(),
-                        modifier = TODO(),
-                        startAxis = TODO(),
-                        topAxis = TODO(),
-                        endAxis = TODO(),
-                        bottomAxis = TODO(),
-                        marker = TODO(),
-                        markerVisibilityChangeListener = TODO(),
-                        legend = TODO(),
-                        isHorizontalScrollEnabled = TODO(),
-                        isZoomEnabled = TODO()
-                    )
-
-                }
-            }
+//                    Chart(
+//                        chart = lineChart(
+//                            lines = listOf(
+//                                LineSpec(
+//                                    //lineColor = lineColor,
+//                                    //lineThicknessDp = lineThicknessDp,
+//                                    //lineBackgroundShader = lineBackgroundShader,
+//                                    //lineCap = lineCap,
+//                                    //point = point,
+//                                    //pointSizeDp = pointSizeDp,
+//                                    //dataLabel = dataLabel,
+//                                    //dataLabelVerticalPosition = dataLabelVerticalPosition,
+//                                    //dataLabelValueFormatter = dataLabelValueFormatter,
+//                                    //dataLabelRotationDegrees = dataLabelRotationDegrees,
+//                                    //pointPosition = pointPosition,
+//                                    //pointConnector = DefaultPointConnector(cubicStrength = cubicStrength),
+//                                )
+//                            )
+//                        ),
+//                        model = TODO(),
+//                        modifier = TODO(),
+//                        startAxis = TODO(),
+//                        topAxis = TODO(),
+//                        endAxis = TODO(),
+//                        bottomAxis = TODO(),
+//                        marker = TODO(),
+//                        markerVisibilityChangeListener = TODO(),
+//                        legend = TODO(),
+//                        isHorizontalScrollEnabled = TODO(),
+//                        isZoomEnabled = TODO()
+//                    )
+//
+//                }
+                }}
 
             // Medications button? Could be swapped to have a list of previous logs
             Row(
