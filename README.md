@@ -34,6 +34,8 @@ Right now, this is our plan forwards on what we will be doing:
   - Added customizability for the app to make it personalized for each person.
 - [ ] Encryption
   - While the health data does not get sent back to a different server and is all stored locally, it is still a good idea to encrypt it for security.
+- [ ] Bloodwork
+  - Let the user put in bloodwork levels from labs they've had performed. Will appear on the chart with the predicted levels for reference.
 
 ---
 ### Disclaimer!
