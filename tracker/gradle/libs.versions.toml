@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.3"
+composeVico = "1.5.2"
 estresso = "master-SNAPSHOT"
 hiltAndroid = "2.51.1"
 hiltNavigationComposeVersion = "1.2.0"
@@ -15,6 +16,8 @@ composeBom = "2024.04.01"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationComposeVersion" }
+composeVico-m3 = { module = "com.patrykandpatryk.vico:compose-m3", version.ref = "composeVico" }
+composeVico = { module = "com.patrykandpatryk.vico:compose", version.ref = "composeVico" }
 estresso = { module = "com.github.J051333:estresso", version.ref = "estresso" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }

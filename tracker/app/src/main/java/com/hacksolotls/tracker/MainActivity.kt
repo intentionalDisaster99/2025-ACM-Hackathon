@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.hacksolotls.tracker.ui.screens.MainScreen
+import com.hacksolotls.tracker.ui.composables.MainScreen
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
