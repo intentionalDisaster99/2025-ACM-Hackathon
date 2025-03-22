@@ -14,13 +14,13 @@ import org.junit.Assert.*
 class `Estresso Test` {
     @Test
     fun e2multidose3CTest() {
-        val expected = 61 // expected result by estrannai.se
+        val expected = 491 // expected result by estrannai.se
 
         val result = e2multidose3C(
-            t = 2.0,
-            doses = listOf(1.0),
-            times = listOf(0.0),
-            models = listOf(Ester.VALERATE),
+            t = 20.0,
+            doses = listOf(6.0, 6.0, 6.0, 6.0, 6.0),
+            times = listOf(0.0, 5.0, 10.0, 15.0, 20.0),
+            models = listOf(Ester.ENANTHATE, Ester.ENANTHATE, Ester.ENANTHATE, Ester.ENANTHATE, Ester.ENANTHATE),
         )
 
         assertEquals(expected, result.toInt())

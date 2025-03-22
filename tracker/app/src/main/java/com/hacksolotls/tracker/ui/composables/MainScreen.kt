@@ -31,9 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hacksolotls.tracker.ui.viewmodels.MainScreenViewModel
-import com.patrykandpatryk.vico.compose.chart.Chart
-import com.patrykandpatryk.vico.compose.chart.line.lineChart
-import com.patrykandpatryk.vico.core.chart.line.LineChart.LineSpec
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
