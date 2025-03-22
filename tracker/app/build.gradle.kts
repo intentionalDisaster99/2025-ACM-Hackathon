@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.hacksolotls.tracker"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.hacksolotls.tracker"
