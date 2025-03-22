@@ -71,6 +71,7 @@ dependencies {
     // Charts
     implementation(libs.composeVico)
     implementation(libs.composeVico.m3)
+    implementation(libs.vico.core)
 
     // Room
     implementation(libs.androidx.room.runtime)
