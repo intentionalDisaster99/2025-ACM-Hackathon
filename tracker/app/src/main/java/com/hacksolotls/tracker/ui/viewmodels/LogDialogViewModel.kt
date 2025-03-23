@@ -22,7 +22,7 @@ import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
-class MedicationViewModel @Inject constructor(
+class LogDialogViewModel @Inject constructor(
     val database: Database,
     private val logDao: LogDao
 ) : ViewModel() {
@@ -65,13 +65,13 @@ class MedicationViewModel @Inject constructor(
                 val dosage = state.value.dosage
                 val daysTilNext = state.value.daysTilNext
 
-                if (timestamp > 0 || dosage > 0) return
+                if (timestamp.isBlank() || dosage.isBlank()) return
 
                 val log = Log(
                     medication = ester,
-                    timestamp = Instant.ofEpochMilli(timestamp),
-                    dosage = dosage,
-                    daysTilNext = daysTilNext
+                    timestamp = Instant.ofEpochMilli(timestamp.toLong()),
+                    dosage = dosage.toDouble(),
+                    daysTilNext = daysTilNext.toInt()
                 )
 
                 viewModelScope.launch {
@@ -82,9 +82,9 @@ class MedicationViewModel @Inject constructor(
                     it.copy(
                         isAddingLog = false,
                         ester = Ester.VALERATE,
-                        timestamp = 0,
-                        dosage = 5.0,
-                        daysTilNext = 5
+                        timestamp = "",
+                        dosage = "",
+                        daysTilNext = ""
                     )
                 }
             }
