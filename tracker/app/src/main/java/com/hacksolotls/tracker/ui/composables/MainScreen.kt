@@ -20,7 +20,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.platform.LocalContext
 
 
-
 import com.hacksolotls.tracker.data.LogEvent
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
 import com.hacksolotls.tracker.ui.viewmodels.LogDialogViewModel
@@ -29,7 +28,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = hiltViewModel(), navController: NavController) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    logDialogViewModel: LogDialogViewModel = hiltViewModel(),
+    viewModel: MainScreenViewModel = hiltViewModel(),
+    navController: NavController
+) {
 
     // Get the Context using LocalContext
     val context = LocalContext.current
@@ -82,111 +86,110 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = h
                     .background(MaterialTheme.colorScheme.surface)
             ) {
 
-                    // The graph
-                    Row(
-                        modifier = Modifier
-                            .weight(5f)
-                            .fillMaxWidth()
+                // The graph
+                Row(
+                    modifier = Modifier
+                        .weight(5f)
+                        .fillMaxWidth()
+                ) {
+                    Card(
+                        modifier = Modifier.padding(pad, pad, pad, pad / 2),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
-                        Card(
-                            modifier = Modifier.padding(pad, pad, pad, pad / 2),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                        ) {
-                            val chartData =
-                                listOf(listOf(1.0, 2.5), listOf(2.0, 3.0), listOf(3.0, 0.0))
-                            val scatterData =
-                                listOf(listOf(1.0, 1.0), listOf(2.0, 2.0), listOf(3.0, 3.0))
-                            VicoGraph(Modifier.fillMaxSize(), chartData, scatterData)
-                        }
+                        val chartData =
+                            listOf(listOf(1.0, 2.5), listOf(2.0, 3.0), listOf(3.0, 0.0))
+                        val scatterData =
+                            listOf(listOf(1.0, 1.0), listOf(2.0, 2.0), listOf(3.0, 3.0))
+                        VicoGraph(Modifier.fillMaxSize(), chartData, scatterData)
                     }
+                }
 
-                    // The calculator button
-                    Row(
+                // The calculator button
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .background(Color.Transparent)
+                ) {
+                    // A button to take them to the calculator
+                    Button(
+                        onClick = { navController.navigate("calculator") },
                         modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .background(Color.Transparent)
+                            .fillMaxSize()
+                            .padding(16.dp, 16.dp, 16.dp, 8.dp),
+                        shape = RoundedCornerShape(8.dp)
                     ) {
-                        // A button to take them to the calculator
-                        Button(
-                            onClick = { navController.navigate("calculator") },
+                        Text(text = "Calculator")
+                    }
+                }
+
+                // The calendar button
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    // A button to take them to the calculator
+                    Button(
+                        onClick = { navController.navigate("calendar") },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp, 16.dp, 16.dp, 8.dp),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(text = "Calendar")
+                    }
+                }
+
+                // Next expected display
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    Card(
+                        modifier = Modifier.padding(pad, pad, pad, pad),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        // Telling them what it is
+                        Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(16.dp, 16.dp, 16.dp, 8.dp),
-                            shape = RoundedCornerShape(8.dp)
+                                .padding(16.dp)  // Optional, to add some space around the text
                         ) {
-                            Text(text = "Calculator")
-                        }
-                    }
-
-                    // The calendar button
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                    ) {
-                        // A button to take them to the calculator
-                        Button(
-                            onClick = { navController.navigate("calendar") },
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp, 16.dp, 16.dp, 8.dp),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text(text = "Calendar")
-                        }
-                    }
-
-                    // Next expected display
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                    ) {
-                        Card(
-                            modifier = Modifier.padding(pad, pad, pad, pad),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                        ) {
-                            // Telling them what it is
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp)  // Optional, to add some space around the text
-                            ) {
 
                             // Todo get the next date
-                            val displayString: String = "Next dose: MMM DD"
-                            
-                                // Todo get the next date
-                                var displayString: String = "Next dose: MMM DD"
+                            var displayString: String = "Next dose: MMM DD"
 
 
-                                Text(
-                                    text = displayString,
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            }
+                            Text(
+                                text = displayString,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
                         }
                     }
                 }
-                if (state.value.isAddingLog) {
-                    UpsertLogDialog(
-                        state = state.value,
-                        onEvent = logDialogViewModel::onEvent,
-                        modifier = Modifier
-                    )
-                }
-
             }
+            if (state.value.isAddingLog) {
+                UpsertLogDialog(
+                    state = state.value,
+                    onEvent = logDialogViewModel::onEvent,
+                    modifier = Modifier
+                )
+            }
+
         }
     }
 }
+
 
 @Composable
 fun DrawerContent(navController: NavController, drawerState: DrawerState) {
     val scope = rememberCoroutineScope()
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
         Text(text = "Navigation", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
 
