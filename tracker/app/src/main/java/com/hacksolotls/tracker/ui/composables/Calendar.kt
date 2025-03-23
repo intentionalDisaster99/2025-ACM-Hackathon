@@ -3,6 +3,7 @@ package com.hacksolotls.tracker.ui.composables
 import android.icu.util.Calendar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -16,16 +17,31 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.material3.Button
+import androidx.compose.ui.platform.LocalContext
 import java.text.SimpleDateFormat
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
+import java.time.LocalDate
+import androidx.compose.ui.platform.LocalContext
 import java.util.*
 
 @Composable
-fun CalendarScreen(modifier: Modifier = Modifier) {
+fun CalendarScreen(modifier: Modifier = Modifier, navController: NavController) {
+
+    // Get the Context using LocalContext
+    val context = LocalContext.current
+
+    // Initialize PreferencesManager with the current Context
+    val preferencesManager = PreferencesManager(context)
+
+    // Retrieve saved values from SharedPreferences
+    val isDarkMode by remember { mutableStateOf(preferencesManager.isDarkMode()) }
+
+
     var currentMonth by remember { mutableStateOf(Calendar.getInstance()) }
     val dateFormatter = remember { SimpleDateFormat("MMMM yyyy", Locale.getDefault()) }
-    TrackerTheme(darkTheme = false) {
+    TrackerTheme(darkTheme = isDarkMode) {
         Column(
             modifier = modifier
                 .padding(16.dp)
@@ -66,14 +82,15 @@ fun CalendarScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(32.dp))
 
             // Grid for displaying the days of the month
-            CalendarGrid(currentMonth = currentMonth)
+            CalendarGrid(currentMonth = currentMonth, navController = navController)
 
         }
     }
 }
 
 @Composable
-fun CalendarGrid(currentMonth: Calendar) {
+fun CalendarGrid(currentMonth: Calendar, navController: NavController) {
+    val currentDate = LocalDate.now() // Get the current date
     val daysInMonth = currentMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
     val firstDayOfMonth = currentMonth.get(Calendar.DAY_OF_WEEK) - 1 // Adjust so that Sunday is 0
 
@@ -112,6 +129,11 @@ fun CalendarGrid(currentMonth: Calendar) {
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(8.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = if (dayCounter == currentDate.dayOfMonth) Color.Blue else Color.Transparent,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
                                 .background(
                                     if (isMedicationTaken) Color.Green else {
                                         if (isMedicationNotTaken) {
@@ -120,7 +142,8 @@ fun CalendarGrid(currentMonth: Calendar) {
                                             Color.Transparent
                                         }
                                     }
-                                ),
+                                )
+                                ,
                             style = TextStyle(fontWeight = FontWeight.Bold)
                         )
                         dayCounter++
@@ -165,7 +188,7 @@ fun CalendarGrid(currentMonth: Calendar) {
         ) {
             // A button to take them back to the homepage
             Button(
-                onClick = { /* todo */ },
+                onClick = { navController.navigate("home") },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp, 16.dp, 16.dp, 8.dp),
@@ -178,8 +201,8 @@ fun CalendarGrid(currentMonth: Calendar) {
 }
 
 
-@Preview
-@Composable
-private fun PrevMainScreen() {
-    CalendarScreen()
-}
+//@Preview
+//@Composable
+//private fun PrevMainScreen() {
+//    CalendarScreen()
+//}

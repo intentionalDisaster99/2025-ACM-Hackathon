@@ -36,6 +36,7 @@ import com.patrykandpatrick.vico.core.common.shader.DynamicShader
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 
 
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
@@ -54,7 +55,18 @@ fun VicoGraph(
     data: List<List<Double>>,
     scatterData: List<List<Double>>
 ) {
-    TrackerTheme(darkTheme = false) {
+
+    // Get the Context using LocalContext
+    val context = LocalContext.current
+
+    // Initialize PreferencesManager with the current Context
+    val preferencesManager = PreferencesManager(context)
+
+    // Retrieve saved values from SharedPreferences
+    val isDarkMode by remember { mutableStateOf(preferencesManager.isDarkMode()) }
+
+
+    TrackerTheme(darkTheme = isDarkMode) {
         val modelProducer = remember { CartesianChartModelProducer() }
         val colors = listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.outlineVariant)
         val dateFormatter = remember { SimpleDateFormat("MM/dd", Locale.getDefault()) }
@@ -115,16 +127,17 @@ fun VicoGraph(
                 ),
                 startAxis = VerticalAxis.rememberStart(
                     label = rememberAxisLabelComponent(
-                        color = MaterialTheme.colorScheme.onSecondary,
+                        color = MaterialTheme.colorScheme.secondary,
                         margins = dimensions(4.dp),
                         padding = dimensions(8.dp, 4.dp),
                         background = rememberShapeComponent(
-                            fill(MaterialTheme.colorScheme.secondary),
+//                            fill(MaterialTheme.colorScheme.secondary),
+                            fill(Color.Transparent),
                             CorneredShape.rounded(allPercent = 25)
                         )
                     ),
                     horizontalLabelPosition = VerticalAxis.HorizontalLabelPosition.Outside,
-                    title = "Estrogen Level unit/volume",
+                    title = "Estrogen Level pg/mL",
                     titleComponent = rememberAxisLabelComponent(
                         color = MaterialTheme.colorScheme.onTertiary,
                         margins = dimensions(4.dp),
