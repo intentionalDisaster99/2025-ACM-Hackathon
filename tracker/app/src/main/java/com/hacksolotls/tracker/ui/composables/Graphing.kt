@@ -105,7 +105,7 @@ fun VicoGraph(
         }
 
         CartesianChartHost(
-            modifier = modifier.background(MaterialTheme.colorScheme.onPrimary),
+            modifier = modifier.background(MaterialTheme.colorScheme.background),
             chart = rememberCartesianChart(
                 rememberLineCartesianLayer(
                     LineCartesianLayer.LineProvider.series(
@@ -117,7 +117,7 @@ fun VicoGraph(
                                 LineCartesianLayer.AreaFill.double(
                                     topFill = fill(
                                         DynamicShader.verticalGradient(
-                                            arrayOf(colors[2], Color.Transparent)
+                                            arrayOf(colors[0], Color.Transparent)
                                         )
                                     ),
                                     bottomFill = fill(
