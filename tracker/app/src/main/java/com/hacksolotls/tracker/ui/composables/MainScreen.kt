@@ -13,17 +13,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.hacksolotls.tracker.ui.viewmodels.MainScreenViewModel
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
-
-
+import com.hacksolotls.tracker.data.LogEvent
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
+import com.hacksolotls.tracker.ui.viewmodels.LogDialogViewModel
+import com.hacksolotls.tracker.ui.viewmodels.MainScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = hiltViewModel()) {
+fun MainScreen(
+    logDialogViewModel: LogDialogViewModel = hiltViewModel(),
+    viewModel: MainScreenViewModel = hiltViewModel()
+) {
     val pad = 16.dp
+
+    val state = logDialogViewModel.state.collectAsState()
 
     TrackerTheme(darkTheme = false) {
         Scaffold(
@@ -36,7 +40,9 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = h
                     },
                     title = { Text(text = "Welcome, name") },
                     actions = {
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = {
+                            logDialogViewModel.onEvent(LogEvent.ShowDialog)
+                        }) {
                             Icon(imageVector = Icons.Default.DateRange, contentDescription = "Log")
                         }
                     }
@@ -121,7 +127,7 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = h
                         ) {
 
                             // Todo get the next date
-                            var displayString: String = "Next dose: MMM DD"
+                            val displayString: String = "Next dose: MMM DD"
                             
 
                             Text(
@@ -132,6 +138,14 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = h
 
                     }
                 }
+                if (state.value.isAddingLog) {
+                    UpsertLogDialog(
+                        state = state.value,
+                        onEvent = logDialogViewModel::onEvent,
+                        modifier = Modifier
+                    )
+                }
+
             }
         }
     }

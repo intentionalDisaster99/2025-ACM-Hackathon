@@ -9,7 +9,7 @@ data class LogState(
     // Which med was taken
     val ester: Ester = Ester.VALERATE,
     val dosage: String = "1.0",
-    val timestamp: String = "0",
-    val daysTilNext: String ="5",
+    val timestamp: Long = 0L,
+    val daysTilNext: String = "5",
     val isAddingLog: Boolean = false,
 )

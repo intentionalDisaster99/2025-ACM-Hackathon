@@ -27,17 +27,12 @@ class LogDialogViewModel @Inject constructor(
     private val logDao: LogDao
 ) : ViewModel() {
 
-    private val _state: MutableStateFlow<LogState>
-    val state: StateFlow<LogState>
-
-    init {
-        _state = MutableStateFlow(LogState())
-        state = _state.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            LogState()
-        )
-    }
+    private val _state: MutableStateFlow<LogState> = MutableStateFlow(LogState())
+    val state: StateFlow<LogState> = _state.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        LogState()
+    )
 
     fun onEvent(event: LogEvent) {
         when (event) {
@@ -65,7 +60,9 @@ class LogDialogViewModel @Inject constructor(
                 val dosage = state.value.dosage
                 val daysTilNext = state.value.daysTilNext
 
-                if (timestamp.isBlank() || dosage.isBlank()) return
+                if (dosage.toDoubleOrNull() == null) {
+                    error("Not a valid dosage")
+                }
 
                 val log = Log(
                     medication = ester,
@@ -82,7 +79,7 @@ class LogDialogViewModel @Inject constructor(
                     it.copy(
                         isAddingLog = false,
                         ester = Ester.VALERATE,
-                        timestamp = "",
+                        timestamp = Instant.now().toEpochMilli(),
                         dosage = "",
                         daysTilNext = ""
                     )
@@ -104,8 +101,11 @@ class LogDialogViewModel @Inject constructor(
                     it.copy(daysTilNext = event.days)
                 }
             }
-
-            is LogEvent.SetTime -> TODO()
+            is LogEvent.SetTime -> {
+                _state.update {
+                    it.copy(timestamp = event.time)
+                }
+            }
         }
     }
 }

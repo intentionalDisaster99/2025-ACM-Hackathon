@@ -17,6 +17,7 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): Database {
+        println("Hey saved!")
         return Room.databaseBuilder(
             context,
             Database::class.java,
