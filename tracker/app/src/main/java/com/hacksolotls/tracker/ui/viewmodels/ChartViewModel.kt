@@ -33,7 +33,7 @@ class ChartViewModel @Inject constructor(
         val chartDatas: MutableList<ChartData> = mutableListOf()
 
         // Forty days from yesterday
-        var time = 0L
+        var time = times[0]
         while (time < times[times.count() - 1]) {
             val temp = ChartData(
                 timestamp = time,

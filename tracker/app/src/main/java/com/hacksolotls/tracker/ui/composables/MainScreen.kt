@@ -1,5 +1,6 @@
 package com.hacksolotls.tracker.ui.composables
 
+import android.provider.CalendarContract.Colors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -38,6 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 
 
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
+import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
+import com.patrykandpatrick.vico.core.common.component.LineComponent
 
 /**
  * Displays a graph with the given data.
@@ -104,7 +107,13 @@ fun VicoGraph(
                         )
                     )
                 ),
-                rememberColumnCartesianLayer(),
+                rememberColumnCartesianLayer(
+                    ColumnCartesianLayer.ColumnProvider.series(
+                        LineComponent(
+                            fill(MaterialTheme.colorScheme.tertiary)
+                        )
+                    )
+                ),
                 startAxis = VerticalAxis.rememberStart(
                     label = rememberAxisLabelComponent(
                         color = MaterialTheme.colorScheme.onSecondary,
