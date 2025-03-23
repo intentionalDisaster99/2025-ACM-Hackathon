@@ -41,6 +41,10 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = h
     val name by remember { mutableStateOf(preferencesManager.getName() ?: "name") }
     val isDarkMode by remember { mutableStateOf(preferencesManager.isDarkMode()) }
 
+    // The scope for the drawer
+    val scope = rememberCoroutineScope()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
     val pad = 16.dp
 
     val state = logDialogViewModel.state.collectAsState()
@@ -50,7 +54,13 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = h
             topBar = {
                 CenterAlignedTopAppBar(
                     navigationIcon = {
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = {
+                            scope.launch {
+                                drawerState.apply {
+                                    if (isClosed) open() else close()
+                                }
+                            }
+                        }) {
                             Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
                         }
                     },
