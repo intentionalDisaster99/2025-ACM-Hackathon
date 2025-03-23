@@ -10,6 +10,12 @@ interface LogDao {
     @Query("SELECT * FROM log ORDER BY timestamp")
     fun getAllLogs(): LiveData<List<Log>>
 
+    @Query("SELECT * FROM log ORDER BY timestamp LIMIT 1")
+    fun getMostRecentLog(): LiveData<List<Log>>
+
+    @Query("SELECT * FROM log ORDER BY timestamp LIMIT :x")
+    fun getMostRecentLog(x: Int): LiveData<List<Log>>
+
     @Upsert
     suspend fun upsertLog(log: Log)
 }
