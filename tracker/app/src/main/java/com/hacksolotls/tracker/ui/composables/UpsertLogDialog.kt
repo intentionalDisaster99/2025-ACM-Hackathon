@@ -112,7 +112,7 @@ fun UpsertLogDialog(
                     )
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
+//                    .fillMaxWidth()
                     .clickable { showDatePicker = true },
                 enabled = false,
                 textStyle = TextStyle(

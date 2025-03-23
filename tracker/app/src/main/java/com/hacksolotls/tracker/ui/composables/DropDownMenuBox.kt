@@ -49,7 +49,7 @@ fun <T> DropDownMenuBox(
             },
             modifier = Modifier
                 .menuAnchor()
-                .fillMaxWidth()
+//                .fillMaxWidth()
                 .clickable { expanded = !expanded })
 
         DropdownMenu(
