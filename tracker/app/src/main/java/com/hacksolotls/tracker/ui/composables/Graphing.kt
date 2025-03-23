@@ -73,8 +73,8 @@ fun VicoGraph(
         val chartData = if (data.isEmpty()) {
             println("No data defaulting to nothing")
             listOf(
-                listOf(System.currentTimeMillis().toDouble(), 01.0),  // Current time in ms
-                listOf(System.currentTimeMillis().toDouble() + 1000000, 01.0)  // A future time, offset by 1 million ms
+                listOf(System.currentTimeMillis().toDouble(), 0.0),  // Current time in ms
+                listOf(System.currentTimeMillis().toDouble() + 1000000, 0.0)  // A future time, offset by 1 million ms
             )
         } else {
             println("We have data now")
@@ -105,7 +105,7 @@ fun VicoGraph(
         }
 
         CartesianChartHost(
-            modifier = modifier.background(MaterialTheme.colorScheme.onPrimary),
+            modifier = modifier.background(MaterialTheme.colorScheme.background),
             chart = rememberCartesianChart(
                 rememberLineCartesianLayer(
                     LineCartesianLayer.LineProvider.series(
@@ -117,7 +117,7 @@ fun VicoGraph(
                                 LineCartesianLayer.AreaFill.double(
                                     topFill = fill(
                                         DynamicShader.verticalGradient(
-                                            arrayOf(colors[2], Color.Transparent)
+                                            arrayOf(colors[0], Color.Transparent)
                                         )
                                     ),
                                     bottomFill = fill(
