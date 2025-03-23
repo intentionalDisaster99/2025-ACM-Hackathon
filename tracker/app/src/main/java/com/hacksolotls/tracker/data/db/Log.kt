@@ -13,5 +13,6 @@ data class Log(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val medication: Ester,
     val timestamp: Instant,
-    val dosage: Double
+    val dosage: Double,
+    val daysTilNext: Int
 )
