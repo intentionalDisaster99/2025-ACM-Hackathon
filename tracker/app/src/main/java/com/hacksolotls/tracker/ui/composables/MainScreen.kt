@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,10 +22,15 @@ import androidx.compose.ui.platform.LocalContext
 
 
 import com.hacksolotls.tracker.data.LogEvent
+import com.hacksolotls.tracker.data.util.millisToLocalDate
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
 import com.hacksolotls.tracker.ui.viewmodels.LogDialogViewModel
 import com.hacksolotls.tracker.ui.viewmodels.MainScreenViewModel
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +51,17 @@ fun MainScreen(
     // Retrieve saved values from SharedPreferences
     val name by remember { mutableStateOf(preferencesManager.getName() ?: "name") }
     val isDarkMode by remember { mutableStateOf(preferencesManager.isDarkMode()) }
+
+    // Remember next dose date
+    val daysTilNext by remember { mutableLongStateOf(0L) }
+
+    var dayDisplayString: String = "Next dose: "
+
+    LaunchedEffect(Unit) {
+        viewModel.getMostRecentLog()
+    }
+
+    val log by viewModel.log.observeAsState()
 
     // The scope for the drawer
     val scope = rememberCoroutineScope()
@@ -167,7 +184,20 @@ fun MainScreen(
                             ) {
 
                                 // Todo get the next date
-                                var displayString: String = "Next dose: MMM DD"
+
+                                val displayString = if (log == null) {
+                                    "Unknown"
+                                } else {
+                                    var time = log!!.timestamp.toEpochMilli()
+                                    time = Instant.ofEpochMilli(time + daysTilNext * 86400000)
+                                        .atZone(ZoneId.of("UTC")) // Convert to ZonedDateTime in UTC
+                                        .toLocalDate() // Extract the date part (ignoring the time)
+                                        .atStartOfDay(ZoneId.systemDefault())
+                                        .toInstant()
+                                        .toEpochMilli()
+                                    dayDisplayString + millisToLocalDate(time).format(
+                                        DateTimeFormatter.ofPattern("MM/dd/yyyy"))
+                                }
 
 
                                 Text(

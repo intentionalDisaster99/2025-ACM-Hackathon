@@ -51,7 +51,7 @@ class LogDialogViewModel @Inject constructor(
 
             LogEvent.SaveLog -> {
                 val ester = state.value.ester
-                val timestamp = state.value.timestamp
+                var timestamp = state.value.timestamp
                 val dosage = state.value.dosage
                 val daysTilNext = state.value.daysTilNext
 
@@ -59,9 +59,13 @@ class LogDialogViewModel @Inject constructor(
                     error("Not a valid dosage")
                 }
 
+                if (timestamp == 0L) {
+                    timestamp = Instant.now().toEpochMilli()
+                }
+
                 val log = Log(
                     medication = ester,
-                    timestamp = Instant.ofEpochMilli(timestamp.toLong()),
+                    timestamp = Instant.ofEpochMilli(timestamp),
                     dosage = dosage.toDouble(),
                     daysTilNext = daysTilNext.toInt()
                 )

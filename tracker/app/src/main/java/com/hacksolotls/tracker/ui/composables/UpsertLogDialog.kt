@@ -138,6 +138,11 @@ fun UpsertLogDialog(
                                         .toEpochMilli() // Convert to milliseconds and add one
                                 }
                                 println(selectedDate)
+                                if (selectedDate == 0L || selectedDate == null) {
+                                    onEvent(LogEvent.SetTime(Instant.now().toEpochMilli()))
+                                } else {
+                                    onEvent(LogEvent.SetTime(selectedDate!!))
+                                }
                                 showDatePicker = false
                             }
                         ) {

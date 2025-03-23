@@ -1,11 +1,12 @@
 package com.hacksolotls.tracker.data
 
-import android.util.Log
+import com.hacksolotls.tracker.data.db.Log
 import com.josiwhitlock.estresso.Ester
 
 data class LogState(
 // logs to display, maybe through a calendar and displaying per month
     val logs: List<Log> = emptyList(),
+    val mostRecentLog: List<Log> = emptyList(),
     // Which med was taken
     val ester: Ester = Ester.VALERATE,
     val dosage: String = "1.0",
