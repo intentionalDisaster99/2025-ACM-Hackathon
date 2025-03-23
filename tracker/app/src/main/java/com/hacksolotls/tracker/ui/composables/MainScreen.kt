@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.hacksolotls.tracker.ui.viewmodels.MainScreenViewModel
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -22,7 +21,10 @@ import androidx.compose.ui.platform.LocalContext
 
 
 
+import com.hacksolotls.tracker.data.LogEvent
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
+import com.hacksolotls.tracker.ui.viewmodels.LogDialogViewModel
+import com.hacksolotls.tracker.ui.viewmodels.MainScreenViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,75 +43,34 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = h
 
     val pad = 16.dp
 
-    // Initialize the DrawerState and CoroutineScope
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+    val state = logDialogViewModel.state.collectAsState()
 
-    TrackerTheme(darkTheme = isDarkMode) {
-
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    Text("Stuffs", modifier = Modifier.padding(16.dp))
-                    HorizontalDivider()
-                    NavigationDrawerItem(
-                        label = { Text(text = "Calculator") },
-                        selected = false,
-                        onClick = { navController.navigate("calculator") }
-                    )
-                    NavigationDrawerItem(
-                        label = { Text(text = "Calendar") },
-                        selected = false,
-                        onClick = { navController.navigate("calendar") }
-                    )
-                    NavigationDrawerItem(
-                        label = { Text(text = "Settings") },
-                        selected = false,
-                        onClick = { navController.navigate("settings") }
-                    )
-                }
-            },
-        ) {
-
-            Scaffold(
-                topBar = {
-                    CenterAlignedTopAppBar(
-                        navigationIcon = {
-                            IconButton(
-                                onClick = {
-                                    scope.launch {
-                                        // Toggle drawer based on its current state
-                                        if (drawerState.isClosed) {
-                                            drawerState.open()
-                                        } else {
-                                            drawerState.close()
-                                        }
-                                    }
-                                }
-                            ) {
-                                Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
-                            }
-                        },
-
-                        title = { Text(text = "Welcome, $name") },
-                        actions = {
-                            IconButton(onClick = { /*TODO*/ }) {
-                                Icon(
-                                    imageVector = Icons.Default.DateRange,
-                                    contentDescription = "Log"
-                                )
-                            }
+    TrackerTheme(darkTheme = false) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
                         }
-                    )
-                }
-            ) { padding ->
-                Column(
-                    Modifier
-                        .padding(padding)
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
-                ) {
+                    },
+                    title = { Text(text = "Welcome, name") },
+                    actions = {
+                        IconButton(onClick = {
+                            logDialogViewModel.onEvent(LogEvent.ShowDialog)
+                        }) {
+                            Icon(imageVector = Icons.Default.DateRange, contentDescription = "Log")
+                        }
+                    }
+                )
+            }
+        ) { padding ->
+            Column(
+                Modifier
+                    .padding(padding)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
 
                     // The graph
                     Row(
@@ -183,6 +144,9 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = h
                                     .padding(16.dp)  // Optional, to add some space around the text
                             ) {
 
+                            // Todo get the next date
+                            val displayString: String = "Next dose: MMM DD"
+                            
                                 // Todo get the next date
                                 var displayString: String = "Next dose: MMM DD"
 
@@ -192,10 +156,17 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainScreenViewModel = h
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             }
-
                         }
                     }
                 }
+                if (state.value.isAddingLog) {
+                    UpsertLogDialog(
+                        state = state.value,
+                        onEvent = logDialogViewModel::onEvent,
+                        modifier = Modifier
+                    )
+                }
+
             }
         }
     }

@@ -11,5 +11,5 @@ interface LogDao {
     fun getAllLogs(): LiveData<List<Log>>
 
     @Upsert
-    suspend fun UpsertLog(log: Log)
+    suspend fun upsertLog(log: Log)
 }
