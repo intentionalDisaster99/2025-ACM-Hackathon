@@ -35,7 +35,7 @@ fun CalendarScreen(modifier: Modifier = Modifier, navController: NavController) 
     // Initialize PreferencesManager with the current Context
     val preferencesManager = PreferencesManager(context)
 
-    // Retrieve saved values from SharedPreferences
+    // Retrieve saved values from SharedPreferences   
     val isDarkMode by remember { mutableStateOf(preferencesManager.isDarkMode()) }
 
 
@@ -132,7 +132,7 @@ fun CalendarGrid(currentMonth: Calendar, navController: NavController) {
                                 .border(
                                     width = 2.dp,
                                     color = if (dayCounter == currentDate.dayOfMonth) Color.Blue else Color.Transparent,
-                                    shape = RoundedCornerShape(4.dp)
+                                    shape = RoundedCornerShape(0.dp)
                                 )
                                 .background(
                                     if (isMedicationTaken) Color.Green else {

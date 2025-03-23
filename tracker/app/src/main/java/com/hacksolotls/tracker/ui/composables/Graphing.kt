@@ -40,6 +40,8 @@ import androidx.compose.ui.platform.LocalContext
 
 
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
+import com.hacksolotls.tracker.ui.viewmodels.ChartViewModel
+import com.hacksolotls.tracker.ui.viewmodels.LogDialogViewModel
 import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.core.common.component.LineComponent
 
@@ -53,7 +55,7 @@ import com.patrykandpatrick.vico.core.common.component.LineComponent
 fun VicoGraph(
     modifier: Modifier = Modifier.fillMaxSize(),
     data: List<List<Double>>,
-    scatterData: List<List<Double>>
+    // scatterData: List<List<Double>>
 ) {
 
     // Get the Context using LocalContext
@@ -67,25 +69,36 @@ fun VicoGraph(
 
 
     TrackerTheme(darkTheme = isDarkMode) {
+
+        val chartData = if (data.isEmpty()) {
+            listOf(
+                listOf(System.currentTimeMillis().toDouble(), 0.0),  // Current time in ms
+                listOf(System.currentTimeMillis().toDouble() + 1000000, 0.0)  // A future time, offset by 1 million ms
+            )
+        } else {
+            data
+        }
+
+
         val modelProducer = remember { CartesianChartModelProducer() }
         val colors = listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.outlineVariant)
         val dateFormatter = remember { SimpleDateFormat("MM/dd", Locale.getDefault()) }
 
-        LaunchedEffect(data, scatterData) {
+        LaunchedEffect(chartData /*, scatterData */) {
             modelProducer.runTransaction {
                 // Line Chart Data
-                val xsLine = data.map { it[0] }
-                val ysLine = data.map { it[1] }
+                val xsLine = chartData.map { it[0] }
+                val ysLine = chartData.map { it[1] }
                 lineSeries {
                     series(xsLine, ysLine)
                 }
 
-                // Bar Chart Data (Added Without Changing Anything Else)
-                val xsScatter = scatterData.map { it[0] }
-                val ysScatter = scatterData.map { it[1] }
-                columnSeries {
-                    series(xsScatter, ysScatter)
-                }
+                // Bar Chart Data
+//                val xsScatter = scatterData.map { it[0] }
+//                val ysScatter = scatterData.map { it[1] }
+//                columnSeries {
+//                    series(xsScatter, ysScatter)
+//                }
             }
         }
 
@@ -131,7 +144,6 @@ fun VicoGraph(
                         margins = dimensions(4.dp),
                         padding = dimensions(8.dp, 4.dp),
                         background = rememberShapeComponent(
-//                            fill(MaterialTheme.colorScheme.secondary),
                             fill(Color.Transparent),
                             CorneredShape.rounded(allPercent = 25)
                         )
@@ -180,13 +192,17 @@ fun VicoGraph(
                     ),
                     valueFormatter = { _, value, _ ->
                         try {
-                            dateFormatter.format(value.toLong())
+                            if (value.toLong() == 0L) {
+                                "No Date"
+                            } else {
+                                dateFormatter.format(value.toLong())
+                            }
                         } catch (e: Exception) {
-                            ""
+                            "Error"
                         }
                     },
                     guideline = null,
-                    itemPlacer = remember { HorizontalAxis.ItemPlacer.segmented() }
+
                 )
             ),
             modelProducer = modelProducer

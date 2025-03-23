@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import com.josiwhitlock.estresso.Estresso
 import com.hacksolotls.tracker.data.db.ChartData
@@ -13,6 +14,7 @@ import com.hacksolotls.tracker.data.db.LogDao
 import com.josiwhitlock.estresso.Ester
 import com.josiwhitlock.estresso.Estresso.e2multidose3C
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.runBlocking
 import java.time.Instant
 import javax.inject.Inject
 
@@ -26,6 +28,11 @@ class ChartViewModel @Inject constructor(
     val logData: LiveData<List<Log>> = logDao.getAllLogs()// TODO: change to getXDaysOfLogsFromDate
 
     fun logsToChartData(logs: List<Log>): List<ChartData> {
+
+        if (logs.isEmpty()) {
+            return emptyList() // No data, return empty list
+        }
+
         val times: List<Long> = logs.map { it.timestamp.toEpochMilli() }
         val doses: List<Double> = logs.map { it.dosage }
         val esters: List<Ester> = logs.map { it.medication }
@@ -34,7 +41,8 @@ class ChartViewModel @Inject constructor(
 
         // Forty days from yesterday
         var time = times[0]
-        while (time < times[times.count() - 1]) {
+
+        while (time < times[times.count() - 1] + millisPerDay * 7) {
             val temp = ChartData(
                 timestamp = time,
                 eLevel = e2multidose3C(
@@ -48,7 +56,20 @@ class ChartViewModel @Inject constructor(
 
             time += step
         }
+        println("In the logs to chart data function")
 
-        return emptyList()
+
+        return chartDatas
     }
+
+    fun logsToChartDataForGraph(logs: List<Log>): List<List<Double>> {
+        val chartData = logsToChartData(logs)
+        return if (chartData.isNotEmpty()) {
+            chartData.map { listOf(it.timestamp.toDouble(), it.eLevel) }
+        } else {
+            // Return an empty list or handle it with a placeholder message
+            emptyList()  // Empty list signifies no data available
+        }
+    }
+
 }

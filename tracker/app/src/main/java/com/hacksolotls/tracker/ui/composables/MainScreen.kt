@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.hacksolotls.tracker.data.LogEvent
 import com.hacksolotls.tracker.data.util.millisToLocalDate
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
+import com.hacksolotls.tracker.ui.viewmodels.ChartViewModel
 import com.hacksolotls.tracker.ui.viewmodels.LogDialogViewModel
 import com.hacksolotls.tracker.ui.viewmodels.MainScreenViewModel
 import kotlinx.coroutines.launch
@@ -39,8 +40,12 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     logDialogViewModel: LogDialogViewModel = hiltViewModel(),
     viewModel: MainScreenViewModel = hiltViewModel(),
+    chartViewModel: ChartViewModel = hiltViewModel(),
     navController: NavController
 ) {
+
+    // Observing the log data so that we can actualy access it
+    val logData by chartViewModel.logData.observeAsState(emptyList())
 
     // Get the Context using LocalContext
     val context = LocalContext.current
@@ -121,11 +126,21 @@ fun MainScreen(
                             modifier = Modifier.padding(pad, pad, pad, pad / 2),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
-                            val chartData =
-                                listOf(listOf(1.0, 2.5), listOf(2.0, 3.0), listOf(3.0, 0.0))
-                            val scatterData =
-                                listOf(listOf(1.0, 1.0), listOf(2.0, 2.0), listOf(3.0, 3.0))
-                            VicoGraph(Modifier.fillMaxSize(), chartData, scatterData)
+
+                            val chartData = chartViewModel.logsToChartDataForGraph(logData)
+//                            val chartData =
+//                                listOf(listOf(1.0, 2.5), listOf(2.0, 3.0), listOf(3.0, 0.0), listOf(4.0, 3.0), listOf(5.0, 1.0))
+
+                            for (innerList in chartData) {
+                                for (value in innerList) {
+                                    println("" + value)
+                                }
+                            }
+
+                            // When we get blood work implemented, then we can add this back in
+//                             val scatterData = listOf(emptyList<Double>())
+
+                            VicoGraph(Modifier.fillMaxSize(), data = chartData/* , scatterData = scatterData TODO */)
                         }
                     }
 
