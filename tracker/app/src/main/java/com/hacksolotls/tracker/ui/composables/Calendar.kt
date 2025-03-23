@@ -35,7 +35,7 @@ fun CalendarScreen(modifier: Modifier = Modifier, navController: NavController) 
     // Initialize PreferencesManager with the current Context
     val preferencesManager = PreferencesManager(context)
 
-    // Retrieve saved values from SharedPreferences   
+    // Retrieve saved values from SharedPreferences
     val isDarkMode by remember { mutableStateOf(preferencesManager.isDarkMode()) }
 
 

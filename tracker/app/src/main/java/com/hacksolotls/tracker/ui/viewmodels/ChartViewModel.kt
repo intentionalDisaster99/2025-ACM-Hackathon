@@ -48,10 +48,12 @@ class ChartViewModel @Inject constructor(
                 eLevel = e2multidose3C(
                     t = time / millisPerDay.toDouble(),
                     doses = doses,
-                    times = times.map { it.toDouble() },
+                    times = times.map { it.toDouble() / millisPerDay.toDouble()},
                     models = esters
                 )
             )
+            println(time)
+            println(temp.eLevel)
             chartDatas.add(temp)
 
             time += step
