@@ -204,7 +204,7 @@ fun MainScreen(
                                     "Unknown"
                                 } else {
                                     var time = log!!.timestamp.toEpochMilli()
-                                    time = Instant.ofEpochMilli(time + daysTilNext * 86400000)
+                                    time = Instant.ofEpochMilli(time + (log?.daysTilNext ?: 0) * 86400000)
                                         .atZone(ZoneId.of("UTC")) // Convert to ZonedDateTime in UTC
                                         .toLocalDate() // Extract the date part (ignoring the time)
                                         .atStartOfDay(ZoneId.systemDefault())
