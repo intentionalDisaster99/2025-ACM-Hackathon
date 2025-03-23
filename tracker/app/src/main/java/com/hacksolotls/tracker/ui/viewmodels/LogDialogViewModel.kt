@@ -1,17 +1,13 @@
 package com.hacksolotls.tracker.ui.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hacksolotls.tracker.data.LogEvent
 import com.hacksolotls.tracker.data.LogState
-import com.hacksolotls.tracker.data.db.Database
 import com.hacksolotls.tracker.data.db.Log
 import com.hacksolotls.tracker.data.db.LogDao
 import com.josiwhitlock.estresso.Ester
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +19,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LogDialogViewModel @Inject constructor(
-    val database: Database,
     private val logDao: LogDao
 ) : ViewModel() {
 
@@ -72,8 +67,11 @@ class LogDialogViewModel @Inject constructor(
                 )
 
                 viewModelScope.launch {
-                    logDao.UpsertLog(log)
+                    logDao.upsertLog(log)
+                    println(logDao.getAllLogs().value?.size ?: "No logs!")
                 }
+
+
 
                 _state.update {
                     it.copy(

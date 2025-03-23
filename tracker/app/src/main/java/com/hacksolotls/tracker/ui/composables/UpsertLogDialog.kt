@@ -59,7 +59,9 @@ fun UpsertLogDialog(
         onEvent(LogEvent.HideDialog)
     }, confirmButton = {
         Button(onClick = {
-            if (state.dosage.isDigitsOnly() && state.daysTilNext.isDigitsOnly()) {
+            println("other hi")
+            if (state.dosage.toDoubleOrNull() != null && state.daysTilNext.toIntOrNull() != null) {
+                println("Hi!!!!!!")
                 onEvent(LogEvent.SaveLog)
                 onEvent(LogEvent.HideDialog)
             }
@@ -146,6 +148,20 @@ fun UpsertLogDialog(
                     DatePicker(state = datePickerState)
                 }
             }
+
+            /* --------------------- Days Til Next --------------------- */
+            TextField(
+                value = state.daysTilNext,
+                onValueChange = { newValue ->
+                    // Ensure that only numbers are allowed
+                    if (newValue.toDoubleOrNull() != null || newValue.isBlank()) {
+                        onEvent(LogEvent.SetDaysTilNext(newValue))
+                    }
+                },
+                label = {
+                    Text(text = "Days until next dose")
+                }
+            )
             /* TODO: Probably add back in, with the log-level dosage taking precedence
              *       probably just to indicate defaults
              */
