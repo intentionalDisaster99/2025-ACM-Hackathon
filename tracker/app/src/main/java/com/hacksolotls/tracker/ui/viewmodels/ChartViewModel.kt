@@ -1,21 +1,13 @@
 package com.hacksolotls.tracker.ui.viewmodels
 
-import android.annotation.SuppressLint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.map
-import com.josiwhitlock.estresso.Estresso
 import com.hacksolotls.tracker.data.db.ChartData
 import com.hacksolotls.tracker.data.db.Log
 import com.hacksolotls.tracker.data.db.LogDao
 import com.josiwhitlock.estresso.Ester
 import com.josiwhitlock.estresso.Estresso.e2multidose3C
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.runBlocking
-import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel

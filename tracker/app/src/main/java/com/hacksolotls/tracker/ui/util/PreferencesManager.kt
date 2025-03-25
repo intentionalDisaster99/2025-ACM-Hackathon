@@ -1,4 +1,4 @@
-package com.hacksolotls.tracker.ui.composables
+package com.hacksolotls.tracker.ui.util
 
 import android.content.Context
 

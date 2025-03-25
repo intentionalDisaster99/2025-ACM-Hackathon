@@ -1,5 +1,6 @@
 package com.hacksolotls.tracker.ui.composables
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,18 +13,14 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import androidx.compose.ui.platform.LocalContext
-
-
 import com.hacksolotls.tracker.data.LogEvent
 import com.hacksolotls.tracker.data.util.millisToLocalDate
 import com.hacksolotls.tracker.ui.theme.TrackerTheme
+import com.hacksolotls.tracker.ui.util.PreferencesManager
 import com.hacksolotls.tracker.ui.viewmodels.ChartViewModel
 import com.hacksolotls.tracker.ui.viewmodels.LogDialogViewModel
 import com.hacksolotls.tracker.ui.viewmodels.MainScreenViewModel
@@ -31,7 +28,6 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.TimeUnit
 
 
 @OptIn(ExperimentalMaterial3Api::class)

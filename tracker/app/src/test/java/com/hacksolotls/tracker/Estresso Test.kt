@@ -2,9 +2,8 @@ package com.hacksolotls.tracker
 
 import com.josiwhitlock.estresso.Ester
 import com.josiwhitlock.estresso.Estresso.e2multidose3C
-import org.junit.Test
-
 import org.junit.Assert.*
+import org.junit.Test
 
 /**
  * Example local unit test, which will execute on the development machine (host).
