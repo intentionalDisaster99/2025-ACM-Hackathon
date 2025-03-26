@@ -1,5 +1,6 @@
 package com.hacksolotls.tracker.ui.composables
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,130 +31,154 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+/**
+ * Composable that displays the dialog used to select properties and save them to the database.
+ *
+ * @param state properties of the [com.hacksolotls.tracker.data.db.Log]
+ * @param onEvent [LogEvent] handler
+ * @param modifier modifier for this composable
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpsertLogDialog(
     state: LogState, onEvent: (LogEvent) -> Unit, modifier: Modifier = Modifier
 ) {
+    // Show the date picker?
     var showDatePicker by remember { mutableStateOf(false) }
+    // Keep track of the state of the datePicker
     val datePickerState = rememberDatePickerState()
+    // Long version of the selected date
     var selectedDate by remember { mutableStateOf<Long?>(null)}
 
-    AlertDialog(onDismissRequest = {
-        onEvent(LogEvent.HideDialog)
-    }, confirmButton = {
-        Button(onClick = {
-            println("other hi")
-            if (state.dosage.toDoubleOrNull() != null && state.daysTilNext.toIntOrNull() != null) {
-                println("Hi!!!!!!")
-                onEvent(LogEvent.SaveLog)
-                onEvent(LogEvent.HideDialog)
-            }
-        }) {
-            Text(
-                text = "Save Log"
-            )
-        }
-    }, title = { Text(text = "Log Dose") }, text = {
-        Column(
-            verticalArrangement = Arrangement.Center
-        ) {
-            /* --------------------- Form --------------------- */
-            DropDownMenuBox(
-                items = Ester.entries,
-                selectedItem = state.ester,
-                itemLabel = { it.toString() },
-                label = "Select a medication",
-                onItemSelected = { onEvent(LogEvent.SetEster((it))) }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            /* --------------------- Dosage --------------------- */
-            TextField(
-                value = state.dosage,
-                onValueChange = { newValue ->
-                    // Ensure that only numbers are allowed
-                    if (newValue.toDoubleOrNull() != null || newValue.isBlank()) {
-                        onEvent(LogEvent.SetDosage(newValue))
-                    }
-                },
-                label = {
-                    Text(text = "Dosage (mg)")
+    AlertDialog(
+        // If user clicks outside of dialog, dismiss
+        onDismissRequest = {
+            onEvent(LogEvent.HideDialog)
+        },
+        confirmButton = {
+            Button(onClick = {
+                // User pressed save, so try to save
+                if (state.dosage.toDoubleOrNull() != null && state.daysTilNext.toIntOrNull() != null) {
+                    Log.d("Database", "Saving log to database...")
+                    onEvent(LogEvent.SaveLog)
+                    onEvent(LogEvent.HideDialog)
                 }
-            )
+            }) {
+                Text(
+                    text = "Save Log"
+                )
+            }
+        },
+        // Dialog Title
+        title = { Text(text = "Log Dose") },
+        // Items for the dialog
+        text = {
+            Column(
+                verticalArrangement = Arrangement.Center
+            ) {
+                /* --------------------- Ester --------------------- */
+                DropDownMenuBox(
+                    items = Ester.entries,
+                    selectedItem = state.ester,
+                    itemLabel = { it.toString() },
+                    label = "Select a medication",
+                    onItemSelected = { onEvent(LogEvent.SetEster((it))) }
+                )
 
-            /* --------------------- Date Picker --------------------- */
-            TextField(
-                value = millisToLocalDate(selectedDate).format(
-                    DateTimeFormatter.ofPattern("MM/dd/yyyy")
-                ),
-                onValueChange = {}, // Just for display
-                label = {
-                    Text(
-                        text = "Date Taken",
+                Spacer(modifier = Modifier.height(10.dp))
+
+                /* --------------------- Dosage --------------------- */
+                TextField(
+                    value = state.dosage,
+                    onValueChange = { newValue ->
+                        // Ensure that only numbers are allowed
+                        if (newValue.toDoubleOrNull() != null || newValue.isBlank()) {
+                            onEvent(LogEvent.SetDosage(newValue))
+                        }
+                    },
+                    label = {
+                        Text(text = "Dosage (mg)")
+                    }
+                )
+
+                /* --------------------- Date Picker --------------------- */
+                TextField(
+                    value = millisToLocalDate(selectedDate).format(
+                        DateTimeFormatter.ofPattern("MM/dd/yyyy")
+                    ),
+                    onValueChange = {}, // Just for display
+                    label = {
+                        Text(
+                            text = "Date Taken",
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    modifier = Modifier
+                        .clickable { showDatePicker = true },
+                    enabled = false,
+                    textStyle = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                },
-                modifier = Modifier
-//                    .fillMaxWidth()
-                    .clickable { showDatePicker = true },
-                enabled = false,
-                textStyle = TextStyle(
-                    color = MaterialTheme.colorScheme.onSurface
                 )
-            )
 
-            Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-            if (showDatePicker) {
-                DatePickerDialog(
-                    onDismissRequest = { showDatePicker = false },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                // Convert selected date millis to LocalDate
-                                selectedDate = datePickerState.selectedDateMillis?.let { millis ->
-                                    Instant.ofEpochMilli(millis)
-                                        .atZone(ZoneId.of("UTC")) // Convert to ZonedDateTime in UTC
-                                        .toLocalDate() // Extract the date part (ignoring the time)
-                                        .atStartOfDay(ZoneId.systemDefault()) // Get the start of the day (midnight) in the USER's time zone
-                                        .toInstant() // Convert back to Instant
-                                        .toEpochMilli() // Convert to milliseconds and add one
+                if (showDatePicker) {
+                    DatePickerDialog(
+                        onDismissRequest = { showDatePicker = false },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    // Convert selected date millis to LocalDate
+                                    selectedDate =
+                                        datePickerState.selectedDateMillis?.let { millis ->
+                                            Instant.ofEpochMilli(millis)
+                                                // Convert to ZonedDateTime in UTC
+                                                .atZone(ZoneId.of("UTC"))
+                                                // Extract the date part (ignoring the time)
+                                                .toLocalDate()
+                                                // Get the start of the day (midnight) in the USER's time zone
+                                                .atStartOfDay(ZoneId.systemDefault())
+                                                // Convert back to Instant
+                                                .toInstant()
+                                                // Convert to milliseconds
+                                                .toEpochMilli()
+                                        }
+                                    if (selectedDate == 0L || selectedDate == null) {
+                                        // If no date is selected, use now
+                                        onEvent(LogEvent.SetTime(Instant.now().toEpochMilli()))
+                                    } else {
+                                        // Set the date as the selected date, asserted as not null
+                                        onEvent(LogEvent.SetTime(selectedDate!!))
+                                    }
+                                    showDatePicker = false
                                 }
-                                println(selectedDate)
-                                if (selectedDate == 0L || selectedDate == null) {
-                                    onEvent(LogEvent.SetTime(Instant.now().toEpochMilli()))
-                                } else {
-                                    onEvent(LogEvent.SetTime(selectedDate!!))
-                                }
-                                showDatePicker = false
+                            ) {
+                                Text("OK")
                             }
-                        ) {
-                            Text("OK")
                         }
+                    ) {
+                        DatePicker(state = datePickerState)
                     }
-                ) {
-                    DatePicker(state = datePickerState)
                 }
-            }
 
-            /* --------------------- Days Til Next --------------------- */
-            TextField(
-                value = state.daysTilNext,
-                onValueChange = { newValue ->
-                    // Ensure that only numbers are allowed
-                    if (newValue.toDoubleOrNull() != null || newValue.isBlank()) {
-                        onEvent(LogEvent.SetDaysTilNext(newValue))
+                /* --------------------- Days Til Next --------------------- */
+                TextField(
+                    value = state.daysTilNext,
+                    onValueChange = { newValue ->
+                        // Ensure that only numbers are allowed
+                        if (newValue.toDoubleOrNull() != null || newValue.isBlank()) {
+                            onEvent(LogEvent.SetDaysTilNext(newValue))
+                        }
+                    },
+                    label = {
+                        Text(text = "Days until next dose")
                     }
-                },
-                label = {
-                    Text(text = "Days until next dose")
-                }
-            )
-            /* TODO: Probably add back in, with the log-level dosage taking precedence
+                )
+                /* TODO: Probably add back in, with the log-level dosage taking precedence
              *       probably just to indicate defaults
              */
+            }
         }
-    })
+    )
 }

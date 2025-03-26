@@ -17,6 +17,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
+/**
+ * Dropdown composable that allows selection from a list of items.
+ *
+ * @param modifier the modifier for this composable
+ * @param items list of items presented to select from
+ * @param selectedItem the currently selected item
+ * @param onItemSelected action to perform when a new item is selected
+ * @param itemLabel the text that should be presented for any given item
+ * @param label text shown when no item is selected
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> DropDownMenuBox(
@@ -30,6 +40,8 @@ fun <T> DropDownMenuBox(
     var expanded by remember {
         mutableStateOf(false)
     }
+
+    // If there's an item, display its label, else display generic label
     val selectedText = selectedItem?.let { itemLabel(it) } ?: label
 
     ExposedDropdownMenuBox(
@@ -37,7 +49,7 @@ fun <T> DropDownMenuBox(
     ) {
         OutlinedTextField(
             value = selectedText,
-            onValueChange = {/* No op */ },
+            onValueChange = { /* No op */ },
             readOnly = true,
             label = { Text(text = label) },
             trailingIcon = {
@@ -48,7 +60,6 @@ fun <T> DropDownMenuBox(
             },
             modifier = Modifier
                 .menuAnchor()
-//                .fillMaxWidth()
                 .clickable { expanded = !expanded })
 
         DropdownMenu(

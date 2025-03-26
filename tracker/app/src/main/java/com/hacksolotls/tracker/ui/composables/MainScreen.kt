@@ -40,12 +40,13 @@ fun MainScreen(
     navController: NavController
 ) {
 
-    // Observing the log data so that we can actualy access it
+    // Observing the log data so that we can actually access it
     val logData by chartViewModel.logData.observeAsState(emptyList())
 
     // Get the Context using LocalContext
     val context = LocalContext.current
 
+    // Might could have hilt perform this instead if more entities need access to Prefs
     // Initialize PreferencesManager with the current Context
     val preferencesManager = PreferencesManager(context)
 
@@ -53,15 +54,15 @@ fun MainScreen(
     val name by remember { mutableStateOf(preferencesManager.getName() ?: "name") }
     val isDarkMode by remember { mutableStateOf(preferencesManager.isDarkMode()) }
 
-    // Remember next dose date
-    val daysTilNext by remember { mutableLongStateOf(0L) }
+    // String to append next dose to
+    val dayDisplayString: String = "Next dose: "
 
-    var dayDisplayString: String = "Next dose: "
-
+    // Tells the viewModel to start updating the most recent log
     LaunchedEffect(Unit) {
         viewModel.getMostRecentLog()
     }
 
+    // Store the most recent log
     val log by viewModel.log.observeAsState()
 
     // The scope for the drawer
@@ -70,6 +71,7 @@ fun MainScreen(
 
     val pad = 16.dp
 
+    // current LogState
     val state = logDialogViewModel.state.collectAsState()
 
     TrackerTheme(darkTheme = isDarkMode) {
@@ -219,6 +221,8 @@ fun MainScreen(
                         }
                     }
                 }
+
+                // Show the add log dialog when the user clicks the button
                 if (state.value.isAddingLog) {
                     UpsertLogDialog(
                         state = state.value,
