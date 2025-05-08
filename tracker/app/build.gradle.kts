@@ -83,6 +83,9 @@ dependencies {
     // Lifecycle components
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    // Notifications
+    implementation(libs.androidx.work.runtime.ktx)
 }
 
 kapt {
