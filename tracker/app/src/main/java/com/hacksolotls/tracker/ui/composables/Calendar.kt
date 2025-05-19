@@ -37,10 +37,10 @@ fun CalendarScreen(modifier: Modifier = Modifier, navController: NavController) 
 
     // Retrieve saved values from SharedPreferences
     val isDarkMode by remember { mutableStateOf(preferencesManager.isDarkMode()) }
-
-
     var currentMonth by remember { mutableStateOf(Calendar.getInstance()) }
     val dateFormatter = remember { SimpleDateFormat("MMMM yyyy", Locale.getDefault()) }
+
+
     TrackerTheme(darkTheme = isDarkMode) {
         Column(
             modifier = modifier
@@ -55,7 +55,7 @@ fun CalendarScreen(modifier: Modifier = Modifier, navController: NavController) 
             Text(
                 modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp),
                 text = dateFormatter.format(currentMonth.time),
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp)
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp, color = MaterialTheme.colorScheme.secondary)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -67,13 +67,19 @@ fun CalendarScreen(modifier: Modifier = Modifier, navController: NavController) 
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(onClick = {
-                    currentMonth.add(Calendar.MONTH, -1) // Go to previous month
+                    // Go to previous month
+                    val newMonth = currentMonth.clone() as Calendar
+                    newMonth.add(Calendar.MONTH, -1)
+                    currentMonth = newMonth
                 }) {
                     Text(text = "Previous")
                 }
 
                 Button(onClick = {
-                    currentMonth.add(Calendar.MONTH, 1) // Go to next month
+                    // Go to next month
+                    val newMonth = currentMonth.clone() as Calendar
+                    newMonth.add(Calendar.MONTH, 1)
+                    currentMonth = newMonth
                 }) {
                     Text(text = "Next")
                 }
@@ -157,6 +163,7 @@ fun CalendarGrid(currentMonth: Calendar, navController: NavController) {
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Card(
                 modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 16.dp / 2),
