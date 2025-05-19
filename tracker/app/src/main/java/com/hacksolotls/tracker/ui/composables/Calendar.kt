@@ -42,54 +42,65 @@ fun CalendarScreen(modifier: Modifier = Modifier, navController: NavController) 
 
 
     TrackerTheme(darkTheme = isDarkMode) {
-        Column(
+
+        // A wrapper column to make the inner padding not look horrible
+        Column (
             modifier = modifier
-                .padding(16.dp)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+                .background(MaterialTheme.colorScheme.background)
         ) {
-
-            // Display the current month name and year
-            Text(
-                modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp),
-                text = dateFormatter.format(currentMonth.time),
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp, color = MaterialTheme.colorScheme.secondary)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Row to show month navigation buttons
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(5.dp, 0.dp, 5.dp, 0.dp),
-
-                horizontalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = modifier
+                    .padding(16.dp)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
             ) {
-                Button(onClick = {
-                    // Go to previous month
-                    val newMonth = currentMonth.clone() as Calendar
-                    newMonth.add(Calendar.MONTH, -1)
-                    currentMonth = newMonth
-                }) {
-                    Text(text = "Previous")
+
+                // Display the current month name and year
+                Text(
+                    modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp),
+                    text = dateFormatter.format(currentMonth.time),
+                    style = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Row to show month navigation buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(5.dp, 0.dp, 5.dp, 0.dp),
+
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(onClick = {
+                        // Go to previous month
+                        val newMonth = currentMonth.clone() as Calendar
+                        newMonth.add(Calendar.MONTH, -1)
+                        currentMonth = newMonth
+                    }) {
+                        Text(text = "Previous")
+                    }
+
+                    Button(onClick = {
+                        // Go to next month
+                        val newMonth = currentMonth.clone() as Calendar
+                        newMonth.add(Calendar.MONTH, 1)
+                        currentMonth = newMonth
+                    }) {
+                        Text(text = "Next")
+                    }
                 }
 
-                Button(onClick = {
-                    // Go to next month
-                    val newMonth = currentMonth.clone() as Calendar
-                    newMonth.add(Calendar.MONTH, 1)
-                    currentMonth = newMonth
-                }) {
-                    Text(text = "Next")
-                }
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Grid for displaying the days of the month
+                CalendarGrid(currentMonth = currentMonth, navController = navController)
+
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Grid for displaying the days of the month
-            CalendarGrid(currentMonth = currentMonth, navController = navController)
-
         }
     }
 }
@@ -107,7 +118,7 @@ fun CalendarGrid(currentMonth: Calendar, navController: NavController) {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             for (day in arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")) {
-                Text(text = day, modifier = Modifier.weight(1f), style = TextStyle(fontWeight = FontWeight.Bold))
+                Text(text = day, modifier = Modifier.weight(1f), style = TextStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary))
             }
         }
 
@@ -150,8 +161,17 @@ fun CalendarGrid(currentMonth: Calendar, navController: NavController) {
                                     }
                                 )
                                 ,
-                            style = TextStyle(fontWeight = FontWeight.Bold)
-                        )
+                            style = TextStyle(fontWeight = FontWeight.Bold, color = (
+                                        if (isMedicationTaken) Color.Black else {
+                                            if (isMedicationNotTaken) {
+                                                Color.DarkGray
+                                            } else {
+                                                MaterialTheme.colorScheme.secondary
+                                            }
+                                        }
+                                    )
+                                )
+                            )
                         dayCounter++
                     }
                 }
