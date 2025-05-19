@@ -1,6 +1,7 @@
 package com.hacksolotls.tracker.ui.composables
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -80,13 +81,14 @@ fun CalculatorScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // First Input Field
+            // Taking in the concentration
             InputFieldWithLabel(
-                label = "Concentration (mg/mL)",
+                label = { Text("Concentration (mg/mL)", color = MaterialTheme.colorScheme.secondary) },
                 value = input1,
                 onValueChange = { input1 = it },
                 placeholder = { Text(text = "Enter a number") }
@@ -94,22 +96,22 @@ fun CalculatorScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Second Input Field
+            // Taking in the amount
             InputFieldWithLabel(
-                label = "Amount (mL)",
+                label = { Text("Amount (mL)", color = MaterialTheme.colorScheme.secondary) },
                 value = input2,
                 onValueChange = { input2 = it },
-                placeholder = { Text(text = "Result: $calculatedValue") } // Dynamically update placeholder
+                placeholder = { Text(text = "Result: $calculatedValue") }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Third Input Field
+            // Taking in the dosage
             InputFieldWithLabel(
-                label = "Dosage (mg)",
+                label = { Text("Dosage (mg)", color = MaterialTheme.colorScheme.secondary) },
                 value = input3,
                 onValueChange = { input3 = it },
-                placeholder = { Text(text = "Result: $calculatedValue") } // Dynamically update placeholder
+                placeholder = { Text(text = "Result: $calculatedValue") }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -128,17 +130,18 @@ fun CalculatorScreen(navController: NavController) {
 
 @Composable
 fun InputFieldWithLabel(
-    label: String,
+    label: @Composable () -> Unit,
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: @Composable () -> Unit // Make the placeholder dynamic
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            style = TextStyle(fontSize = 18.sp),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+//        Text(
+//            text = label,
+//            style = TextStyle(fontSize = 18.sp),
+//            modifier = Modifier.padding(bottom = 8.dp)
+//        )
+        label()
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
@@ -150,6 +153,7 @@ fun InputFieldWithLabel(
     }
 }
 
+// For testing
 //@Preview(showBackground = true)
 //@Composable
 //fun CalculatorScreenPreview() {
