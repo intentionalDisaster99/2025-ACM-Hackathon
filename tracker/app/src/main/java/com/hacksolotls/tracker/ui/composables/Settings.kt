@@ -1,5 +1,6 @@
 package com.hacksolotls.tracker.ui.composables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -43,6 +44,7 @@ fun SettingsScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -56,6 +58,7 @@ fun SettingsScreen(navController: NavController) {
                 Text(
                     text = "Dark Mode",
                     style = TextStyle(fontSize = 18.sp),
+                    color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier
                         .padding(bottom = 8.dp)
                         .wrapContentWidth(Alignment.End) // Right-aligned text
@@ -83,18 +86,20 @@ fun SettingsScreen(navController: NavController) {
                 Text(
                     text = "Name",
                     style = TextStyle(fontSize = 18.sp),
+                    color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier
                         .padding(bottom = 8.dp)
                         .wrapContentWidth(Alignment.Start)
-
                 )
 
+                // TODO This needs to be updated to make the text show in landscape mode on all devices
                 OutlinedTextField(
                     value = name,
                     onValueChange = { newName ->
                         name = newName
-                        preferencesManager.saveName(newName) // Save when changed
+                        preferencesManager.saveName(newName)
                     },
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.secondary),
                     modifier = Modifier
                         .fillMaxWidth(0.6f)
                         .fillMaxHeight(0.075f)
@@ -102,8 +107,8 @@ fun SettingsScreen(navController: NavController) {
                     placeholder = { Text(text = "Enter your name") },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
-                    isError = name.isEmpty(), // Optional: show error if name is empty
-                    label = { Text(text = "Name") } // Adding label for better clarity
+                    isError = name.isEmpty(),
+                    label = { Text(text = "Name") }
                 )
             }
 
