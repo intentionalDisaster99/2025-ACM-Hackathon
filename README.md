@@ -6,7 +6,7 @@ This is our Android Studio app that will help track estrogen doses for feminizin
 It is our entry for the UAH 2025 ACM Hackathon.
 
 ## How can I use it?
-If you have an adroid device, then we should soon have a release on the GitHub you can download and use!
+If you have an android device, then check the releases page!
 
 ## Features
 What all can it do? 
