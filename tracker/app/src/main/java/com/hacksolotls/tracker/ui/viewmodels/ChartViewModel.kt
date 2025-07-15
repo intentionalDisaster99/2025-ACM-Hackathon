@@ -44,8 +44,8 @@ class ChartViewModel @Inject constructor(
                     models = esters
                 )
             )
-            println(time)
-            println(temp.eLevel)
+            //println(time)
+            //println(temp.eLevel)
             chartDatas.add(temp)
 
             time += step

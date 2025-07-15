@@ -6,6 +6,7 @@ import com.hacksolotls.tracker.data.LogEvent
 import com.hacksolotls.tracker.data.LogState
 import com.hacksolotls.tracker.data.db.Log
 import com.hacksolotls.tracker.data.db.LogDao
+import com.hacksolotls.tracker.notifs.NotificationScheduler
 import com.josiwhitlock.estresso.Ester
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,12 +15,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
 class LogDialogViewModel @Inject constructor(
-    private val logDao: LogDao
+    private val logDao: LogDao,
+    private val notificationScheduler: NotificationScheduler
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<LogState> = MutableStateFlow(LogState())
@@ -29,11 +32,18 @@ class LogDialogViewModel @Inject constructor(
         LogState()
     )
 
+    fun scheduleReminder(title: String, message: String, day: DayOfWeek, hour: Int, minute: Int) {
+        notificationScheduler.scheduleNotification(title, message, day, hour, minute)
+    }
+
     fun onEvent(event: LogEvent) {
         when (event) {
             LogEvent.HideDialog -> {
                 _state.update {
+                    notificationScheduler.scheduleNotification("title", "message", java.time.LocalDateTime.now().dayOfWeek, java.time.LocalDateTime.now().hour, java.time.LocalDateTime.now().minute + 2)
+                    println("scheduled?")
                     it.copy(isAddingLog = false)
+
                 }
             }
 

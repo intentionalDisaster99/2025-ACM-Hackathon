@@ -131,7 +131,7 @@ fun MainScreen(
 
                             for (innerList in chartData) {
                                 for (value in innerList) {
-                                    println("" + value)
+                                    //println("" + value)
                                 }
                             }
 
@@ -230,6 +230,17 @@ fun MainScreen(
                         modifier = Modifier
                     )
                 }
+
+                NotificationPermissionRequester(
+                    onPermissionGranted = {
+                        println("Notification permission was granted!")
+                        // Now it's safe to schedule notifications
+                    },
+                    onPermissionDenied = {
+                        println("Notification permission was denied. Cannot show reminders.")
+                        // Inform the user, maybe guide them to app settings
+                    }
+                )
             }
         }
     }
