@@ -22,7 +22,9 @@ class NotificationScheduler @Inject constructor(
     fun scheduleNotification(
         title: String,
         message: String,
-        dayOfWeek: DayOfWeek,
+        year: Int,
+        month: Int,
+        day: Int,
         hour: Int,
         minute: Int
     ) {
@@ -40,17 +42,7 @@ class NotificationScheduler @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val now = LocalDateTime.now()
-        var targetDateTime = now
-            .with(DayOfWeek.from(dayOfWeek))
-            .withHour(hour)
-            .withMinute(minute)
-            .withSecond(0)
-            .withNano(0)
-
-        if (targetDateTime.isBefore(now)) {
-            targetDateTime = targetDateTime.plusWeeks(1)
-        }
+        var targetDateTime = LocalDateTime.of(year, month, day, hour, minute)
 
         val triggerMillis = targetDateTime.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000
 
@@ -58,7 +50,7 @@ class NotificationScheduler @Inject constructor(
             "AlarmSchedulerDebug",
             "Scheduling ONE-TIME notification (approximate) for: $targetDateTime ($triggerMillis ms)"
         )
-        Log.d("AlarmSchedulerDebug", "Current time: $now (${System.currentTimeMillis()} ms)")
+        Log.d("AlarmSchedulerDebug", "Current time: ${LocalDateTime.now()} (${System.currentTimeMillis()} ms)")
         Log.d("AlarmSchedulerDebug", "Request Code (Notification ID): $requestCode")
 
 

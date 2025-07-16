@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.Instant
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,18 +33,23 @@ class LogDialogViewModel @Inject constructor(
         LogState()
     )
 
-    fun scheduleReminder(title: String, message: String, day: DayOfWeek, hour: Int, minute: Int) {
-        notificationScheduler.scheduleNotification(title, message, day, hour, minute)
+    fun scheduleNotificationNow() {
+        notificationScheduler.scheduleNotification(
+            "title",
+            "message",
+            LocalDate.now().year,
+            LocalDate.now().monthValue,
+            LocalDate.now().dayOfMonth,
+            java.time.LocalDateTime.now().hour,
+            java.time.LocalDateTime.now().minute + 2
+        )
     }
 
     fun onEvent(event: LogEvent) {
         when (event) {
             LogEvent.HideDialog -> {
                 _state.update {
-                    notificationScheduler.scheduleNotification("title", "message", java.time.LocalDateTime.now().dayOfWeek, java.time.LocalDateTime.now().hour, java.time.LocalDateTime.now().minute + 2)
-                    println("scheduled?")
                     it.copy(isAddingLog = false)
-
                 }
             }
 
