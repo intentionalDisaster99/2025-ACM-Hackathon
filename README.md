@@ -3,7 +3,7 @@
 ## What is it???
 This is our Android Studio app that will help track estrogen doses for feminizing HRT.
 
-It is our entry for the UAH 2025 ACM Hackathon.
+It was our entry for the UAH 2025 ACM Hackathon and a passion project.
 
 ## How can I use it?
 If you have an android device, then check the releases page!
@@ -21,9 +21,10 @@ Right now, this is our plan forwards on what we will be doing:
   - A function to log when one takes their dose to update the graph.
 - [x] Enum for Med Types
   - Storage of the data for each medication type, basically expanding the app to be able to use more meds.
+  - So far this only includes different estradiol esters.
 
 ### Extra Enhancements
-- [x] Log autofill
+- [ ] Log autofill
   - Adds an option to automatically fill in the data for the meds based what day it is and some defaults.
 - [x] Concentration to mg Calculator
   - A calculator that will automatically calculate the correct dosage based on the concentration of the meds.
