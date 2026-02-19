@@ -199,7 +199,7 @@ fun MainScreen(
                                 // Todo get the next date
 
                                 val displayString = if (log == null) {
-                                    "Unknown"
+                                    "We couldn't read your logs. Sorry!"
                                 } else {
                                     var time = log!!.timestamp.toEpochMilli()
                                     time = Instant.ofEpochMilli(time + (log?.daysTilNext ?: 0) * 86400000)

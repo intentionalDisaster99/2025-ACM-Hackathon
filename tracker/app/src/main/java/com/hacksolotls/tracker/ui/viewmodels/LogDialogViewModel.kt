@@ -18,6 +18,10 @@ import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,13 +39,14 @@ class LogDialogViewModel @Inject constructor(
 
     fun scheduleNotificationNow() {
         notificationScheduler.scheduleNotification(
-            "title",
-            "message",
+            "Look at that, we got notifications!",
+            "Hey!",
             LocalDate.now().year,
             LocalDate.now().monthValue,
             LocalDate.now().dayOfMonth,
-            java.time.LocalDateTime.now().hour,
-            java.time.LocalDateTime.now().minute + 2
+            LocalDateTime.now().hour,
+            LocalDateTime.now().minute,
+            LocalDateTime.now().second + 15
         )
     }
 
@@ -57,6 +62,8 @@ class LogDialogViewModel @Inject constructor(
                 _state.update {
                     it.copy(isAddingLog = true)
                 }
+
+                //scheduleNotificationNow()
             }
 
             is LogEvent.DeleteMedication -> {
@@ -86,12 +93,37 @@ class LogDialogViewModel @Inject constructor(
                     daysTilNext = daysTilNext.toInt()
                 )
 
+                // Setting to 8pm for now
+                val nextTimeStamp = Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).plusDays(daysTilNext.toLong()).withHour(20)
+
+                notificationScheduler.scheduleNotification(
+                    "Time to take your estrogen!",
+                    "Hey! It's time to take your estrogen. Please log your dose in the app when done :)",
+                    NotificationScheduler.REMINDER_CODE,
+                    nextTimeStamp.year,
+                    nextTimeStamp.monthValue,
+                    nextTimeStamp.dayOfMonth,
+                    nextTimeStamp.hour,
+                    nextTimeStamp.minute,
+                    nextTimeStamp.second
+                )
+
+                notificationScheduler.scheduleNotification(
+                    "Dose reminder scheduled!",
+                    "Your next dose is scheduled for " + nextTimeStamp.format(DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm a'.'")),
+                    NotificationScheduler.SCHEDULED_CODE,
+                    LocalDate.now().year,
+                    LocalDate.now().monthValue,
+                    LocalDate.now().dayOfMonth,
+                    LocalDateTime.now().hour,
+                    LocalDateTime.now().minute,
+                    LocalDateTime.now().second.plus(5)
+                )
+
                 viewModelScope.launch {
                     logDao.upsertLog(log)
                     println(logDao.getAllLogs().value?.size ?: "No logs!")
                 }
-
-
 
                 _state.update {
                     it.copy(

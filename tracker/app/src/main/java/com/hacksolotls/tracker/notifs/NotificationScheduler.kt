@@ -22,13 +22,15 @@ class NotificationScheduler @Inject constructor(
     fun scheduleNotification(
         title: String,
         message: String,
+        id: Int,
         year: Int,
         month: Int,
         day: Int,
         hour: Int,
-        minute: Int
+        minute: Int,
+        second: Int = 0
     ) {
-        val requestCode = generateUniqueRequestCode()
+        val requestCode = id // generateUniqueRequestCode()
 
         val intent = Intent(appContext, ScheduledNotificationReceiver::class.java).apply {
             putExtra(ScheduledNotificationReceiver.NOTIFICATION_TITLE_KEY, title)
@@ -42,7 +44,7 @@ class NotificationScheduler @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        var targetDateTime = LocalDateTime.of(year, month, day, hour, minute)
+        var targetDateTime = LocalDateTime.of(year, month, day, hour, minute, second)
 
         val triggerMillis = targetDateTime.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000
 
@@ -87,5 +89,11 @@ class NotificationScheduler @Inject constructor(
 
     private fun generateUniqueRequestCode(): Int {
         return System.currentTimeMillis().toInt() // Simple way to generate a unique code
+    }
+
+    companion object {
+        // lol boobs
+        const val REMINDER_CODE = 80085
+        const val SCHEDULED_CODE = 8008
     }
 }

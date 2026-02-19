@@ -119,7 +119,7 @@ fun VicoGraph(
                                 )
                             },
                             pointConnector = remember {
-                                LineCartesianLayer.PointConnector.cubic(curvature = 0.4f)
+                                LineCartesianLayer.PointConnector.cubic(curvature = 0.0f)
                             }
                         )
                     )
