@@ -13,8 +13,8 @@ class MainScreenViewModel @Inject constructor(
     private val logDao: LogDao
 ) : ViewModel() {
 
-    private val _log = MutableLiveData<Log>()
-    val log: LiveData<Log> get() = _log
+    private val _log = MutableLiveData<Log?>()
+    val log: LiveData<Log?> get() = _log
 
     fun getMostRecentLog() {
         logDao.getMostRecentLog().observeForever { log ->

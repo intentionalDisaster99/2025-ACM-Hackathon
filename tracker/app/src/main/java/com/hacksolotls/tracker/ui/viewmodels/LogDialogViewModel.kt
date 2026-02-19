@@ -1,5 +1,8 @@
 package com.hacksolotls.tracker.ui.viewmodels
 
+import android.widget.Toast
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hacksolotls.tracker.data.LogEvent
@@ -9,9 +12,11 @@ import com.hacksolotls.tracker.data.db.LogDao
 import com.hacksolotls.tracker.notifs.NotificationScheduler
 import com.josiwhitlock.estresso.Ester
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,6 +25,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
@@ -36,6 +42,9 @@ class LogDialogViewModel @Inject constructor(
         SharingStarted.WhileSubscribed(5000),
         LogState()
     )
+
+    private val _events = MutableSharedFlow<UiEvent>()
+    val events = _events.asSharedFlow()
 
     fun scheduleNotificationNow() {
         notificationScheduler.scheduleNotification(
@@ -96,33 +105,37 @@ class LogDialogViewModel @Inject constructor(
                 // Setting to 8pm for now
                 val nextTimeStamp = Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).plusDays(daysTilNext.toLong()).withHour(20)
 
-                notificationScheduler.scheduleNotification(
-                    "Time to take your estrogen!",
-                    "Hey! It's time to take your estrogen. Please log your dose in the app when done :)",
-                    NotificationScheduler.REMINDER_CODE,
-                    nextTimeStamp.year,
-                    nextTimeStamp.monthValue,
-                    nextTimeStamp.dayOfMonth,
-                    nextTimeStamp.hour,
-                    nextTimeStamp.minute,
-                    nextTimeStamp.second
-                )
-
-                notificationScheduler.scheduleNotification(
-                    "Dose reminder scheduled!",
-                    "Your next dose is scheduled for " + nextTimeStamp.format(DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm a'.'")),
-                    NotificationScheduler.SCHEDULED_CODE,
-                    LocalDate.now().year,
-                    LocalDate.now().monthValue,
-                    LocalDate.now().dayOfMonth,
-                    LocalDateTime.now().hour,
-                    LocalDateTime.now().minute,
-                    LocalDateTime.now().second.plus(5)
-                )
-
                 viewModelScope.launch {
                     logDao.upsertLog(log)
                     println(logDao.getAllLogs().value?.size ?: "No logs!")
+
+                    if (!nextTimeStamp.isBefore(ZonedDateTime.now())) {
+                        notificationScheduler.scheduleNotification(
+                            "Time to take your estrogen!",
+                            "Hey! It's time to take your estrogen. Please log your dose in the app when done :)",
+                            NotificationScheduler.REMINDER_CODE,
+                            nextTimeStamp.year,
+                            nextTimeStamp.monthValue,
+                            nextTimeStamp.dayOfMonth,
+                            nextTimeStamp.hour,
+                            nextTimeStamp.minute,
+                            nextTimeStamp.second
+                        )
+
+                        notificationScheduler.scheduleNotification(
+                            "Dose reminder scheduled!",
+                            "Your next dose is scheduled for " + nextTimeStamp.format(DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm a'.'")),
+                            NotificationScheduler.SCHEDULED_CODE,
+                            LocalDate.now().year,
+                            LocalDate.now().monthValue,
+                            LocalDate.now().dayOfMonth,
+                            LocalDateTime.now().hour,
+                            LocalDateTime.now().plusSeconds(5).minute,
+                            LocalDateTime.now().plusSeconds(5).second
+                        )
+                    } else {
+                        _events.emit(UiEvent.ShowSnackBar("Dose reminder not scheduled as it is in the past"))
+                    }
                 }
 
                 _state.update {
@@ -158,4 +171,8 @@ class LogDialogViewModel @Inject constructor(
             }
         }
     }
+}
+
+sealed class UiEvent {
+    data class ShowSnackBar(val message: String) : UiEvent()
 }

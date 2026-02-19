@@ -24,6 +24,7 @@ import com.hacksolotls.tracker.ui.util.PreferencesManager
 import com.hacksolotls.tracker.ui.viewmodels.ChartViewModel
 import com.hacksolotls.tracker.ui.viewmodels.LogDialogViewModel
 import com.hacksolotls.tracker.ui.viewmodels.MainScreenViewModel
+import com.hacksolotls.tracker.ui.viewmodels.UiEvent
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
@@ -74,6 +75,19 @@ fun MainScreen(
     // current LogState
     val state = logDialogViewModel.state.collectAsState()
 
+    // Snackbar stuff
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        logDialogViewModel.events.collect { event ->
+            when (event) {
+                is UiEvent.ShowSnackBar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
+        }
+    }
+
     TrackerTheme(darkTheme = isDarkMode) {
 
         ModalNavigationDrawer(
@@ -83,6 +97,7 @@ fun MainScreen(
             drawerState = drawerState
         ) {
             Scaffold(
+                snackbarHost = {SnackbarHost(snackbarHostState)},
                 topBar = {
                     CenterAlignedTopAppBar(
                         navigationIcon = {
