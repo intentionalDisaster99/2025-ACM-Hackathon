@@ -77,11 +77,11 @@ fun Chart(
             rememberLineCartesianLayer(
                 lineProvider = LineCartesianLayer.LineProvider.series(
                     LineCartesianLayer.rememberLine(
-                        fill = LineCartesianLayer.LineFill.single(Fill(MaterialTheme.colorScheme.primary)),
+                        fill = LineCartesianLayer.LineFill.single(Fill(MaterialTheme.colorScheme.onSecondaryContainer)),
                         areaFill =
                             LineCartesianLayer.AreaFill.single(
                                 Fill(
-                                    Brush.verticalGradient(listOf(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f), Color.Transparent))
+                                    Brush.verticalGradient(listOf(MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f), Color.Transparent))
                                 )
                             ),
                     )
@@ -90,7 +90,7 @@ fun Chart(
             ),
             bottomAxis = HorizontalAxis.rememberBottom(
                 label = rememberAxisLabelComponent(
-                    style = TextStyle(color = MaterialTheme.colorScheme.primary),
+                    style = TextStyle(color = MaterialTheme.colorScheme.onSecondaryContainer),
                     margins = Insets(4.dp),
                     padding = Insets(4.dp, 4.dp),
                 ),
@@ -103,12 +103,12 @@ fun Chart(
             ),
             startAxis = VerticalAxis.rememberStart(
                 label = rememberAxisLabelComponent(
-                    style = TextStyle(color = MaterialTheme.colorScheme.primary),
+                    style = TextStyle(color = MaterialTheme.colorScheme.onSecondaryContainer),
                     margins = Insets(4.dp),
                     padding = Insets(4.dp, 4.dp),
                 ),
                 title = { "Estrogen Level (pg/mL)" },
-                titleComponent = rememberTextComponent(TextStyle(color = MaterialTheme.colorScheme.primary)),
+                titleComponent = rememberTextComponent(TextStyle(color = MaterialTheme.colorScheme.onSecondaryContainer)),
                 valueFormatter = CartesianValueFormatter { _, value, _ ->
                     (value.toInt()).toString()
                 },

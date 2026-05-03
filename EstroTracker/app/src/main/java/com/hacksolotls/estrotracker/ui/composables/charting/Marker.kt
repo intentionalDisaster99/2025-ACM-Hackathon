@@ -47,14 +47,14 @@ fun rememberMarker(
 ): CartesianMarker {
     val labelBackgroundShape = MarkerCornerBasedShape(CircleShape)
     val labelBackground = rememberShapeComponent(
-        fill = Fill(MaterialTheme.colorScheme.surfaceVariant),
+        fill = Fill(MaterialTheme.colorScheme.tertiaryContainer),
         shape = labelBackgroundShape,
-        strokeFill = Fill(MaterialTheme.colorScheme.outline),
+        strokeFill = Fill(MaterialTheme.colorScheme.onTertiaryContainer),
         strokeThickness = 1.dp,
     )
     val label = rememberTextComponent(
         style = TextStyle(
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
             textAlign = TextAlign.Center,
             fontSize = 12.sp,
         ),
@@ -63,9 +63,18 @@ fun rememberMarker(
         minWidth = TextComponent.MinWidth.fixed(40.dp),
     )
     val indicatorFrontComponent = rememberShapeComponent(
-        fill = Fill(MaterialTheme.colorScheme.surface),
+        fill = Fill(MaterialTheme.colorScheme.tertiaryContainer),
         shape = CircleShape
     )
+
+    val indicatorBackComponent = ShapeComponent(Fill(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)), CircleShape)
+
+    val indicatorFrontLayered = LayeredComponent(
+        back = ShapeComponent(fill = Fill(MaterialTheme.colorScheme.tertiary), shape = CircleShape),
+        front = indicatorFrontComponent,
+        padding = Insets(5.dp),
+    )
+
     val guideline = rememberAxisGuidelineComponent()
 
     return rememberDefaultCartesianMarker(
@@ -74,12 +83,8 @@ fun rememberMarker(
         indicator = if (showIndicator) {
             { color ->
                 LayeredComponent(
-                    back = ShapeComponent(Fill(color.copy(alpha = 0.15f)), CircleShape),
-                    front = LayeredComponent(
-                        back = ShapeComponent(fill = Fill(color), shape = CircleShape),
-                        front = indicatorFrontComponent,
-                        padding = Insets(5.dp),
-                    ),
+                    back = indicatorBackComponent,
+                    front = indicatorFrontLayered,
                     padding = Insets(10.dp),
                 )
             }

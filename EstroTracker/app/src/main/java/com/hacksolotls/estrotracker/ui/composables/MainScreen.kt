@@ -208,7 +208,7 @@ fun MainScreen(
                                 .fillMaxSize(),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
                             )
                         ) {
                             if (logs.isEmpty()) {
@@ -276,7 +276,10 @@ fun MainScreen(
                     ) {
                         Card(
                             modifier = Modifier.padding(pad, pad, pad, pad),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                            )
                         ) {
                             // Telling them what it is
                             Box(
@@ -307,7 +310,8 @@ fun MainScreen(
 
                                 Text(
                                     text = displayString,
-                                    modifier = Modifier.align(Alignment.Center)
+                                    modifier = Modifier.align(Alignment.Center),
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
                             }
                         }
