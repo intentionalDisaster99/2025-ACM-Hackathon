@@ -35,6 +35,16 @@ interface LogDao {
     fun getXMostRecentLogs(x: Int): LiveData<List<Log>>
 
     /**
+     * Retrieve all logs within a specific date range, sorted by timestamp.
+     *
+     * @param start The beginning of the range (inclusive)
+     * @param end The end of the range (inclusive)
+     * @return [LiveData]-wrapped [List] of [Log]s within the range
+     */
+    @Query("SELECT * FROM log WHERE timestamp BETWEEN :start AND :end ORDER BY timestamp ASC")
+    fun getLogsInDateRange(start: Long, end: Long): LiveData<List<Log>>
+
+    /**
      * Update or insert the provided [Log] into the database.
      */
     @Upsert

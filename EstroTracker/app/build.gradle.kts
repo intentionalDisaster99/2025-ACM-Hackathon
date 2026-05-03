@@ -79,7 +79,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
     // Charts
-    implementation ("io.github.ehsannarmani:compose-charts:0.2.5")
+    //implementation ("io.github.ehsannarmani:compose-charts:0.2.5")
 
     // Room
     val room_version = "2.8.4"
@@ -122,4 +122,11 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:$work_version")
 
     implementation(libs.compose.material.icons)
+
+
+    // Vico
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m2)
+    implementation(libs.vico.compose.m3)
+    implementation(libs.vico.views)
 }

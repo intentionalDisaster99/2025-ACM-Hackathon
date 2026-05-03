@@ -1,41 +1,37 @@
 package com.hacksolotls.estrotracker.ui.composables
 
 
-import androidx.compose.animation.core.EaseInOutCubic
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.hacksolotls.estrotracker.data.LogEvent
+import com.hacksolotls.estrotracker.data.util.longToDateTime
 import com.hacksolotls.estrotracker.data.util.millisToLocalDate
+import com.hacksolotls.estrotracker.ui.composables.charting.Chart
 import com.hacksolotls.estrotracker.ui.theme.TrackerTheme
 import com.hacksolotls.estrotracker.ui.util.PreferencesManager
 import com.hacksolotls.estrotracker.ui.viewmodels.ChartViewModel
 import com.hacksolotls.estrotracker.ui.viewmodels.LogDialogViewModel
 import com.hacksolotls.estrotracker.ui.viewmodels.MainScreenViewModel
 import com.hacksolotls.estrotracker.ui.viewmodels.UiEvent
-import ir.ehsannarmani.compose_charts.LineChart
-import ir.ehsannarmani.compose_charts.models.AnimationMode
-import ir.ehsannarmani.compose_charts.models.DrawStyle
-import ir.ehsannarmani.compose_charts.models.Line
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
@@ -53,7 +49,7 @@ fun MainScreen(
 ) {
 
     // Observing the log data so that we can actually access it
-    val logData by chartViewModel.logData.observeAsState(emptyList())
+    //val logData by chartViewModel.logData.observeAsState(emptyList())
 
     // Get the Context using LocalContext
     val context = LocalContext.current
@@ -99,13 +95,26 @@ fun MainScreen(
         }
     }
 
+    // -----Chart stuff-----
+    val displayBounds by chartViewModel.displayBounds.observeAsState()
+    val logs by chartViewModel.calculationData.observeAsState(emptyList())
+
+    val chartData = remember(logs, displayBounds) {
+        displayBounds?.let { bounds ->
+            chartViewModel.logsToChartData(logs, bounds)
+        } ?: emptyList()
+    }
+
+
+
     TrackerTheme(darkTheme = isDarkMode) {
 
         ModalNavigationDrawer(
             drawerContent = {
                 DrawerContent(navController, drawerState)
             },
-            drawerState = drawerState
+            drawerState = drawerState,
+            gesturesEnabled = false
         ) {
             Scaffold(
                 snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -113,13 +122,14 @@ fun MainScreen(
                     CenterAlignedTopAppBar(
                         navigationIcon = {
                             IconButton(onClick = {
-                                scope.launch {
-                                    drawerState.apply {
-                                        if (isClosed) open() else close()
-                                    }
-                                }
+                                navController.navigate("settings")
+//                                scope.launch {
+//                                    drawerState.apply {
+//                                        if (isClosed) open() else close()
+//                                    }
+//                                }
                             }) {
-                                Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+                                Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                             }
                         },
                         title = { Text(text = "Welcome, $name") },
@@ -142,94 +152,81 @@ fun MainScreen(
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface)
                 ) {
-                    Row(modifier = Modifier.weight(0.5f).fillMaxWidth().padding(pad, pad, pad, pad/2)) {
-                        Column(modifier = Modifier.weight(1f)) { Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "left", modifier = Modifier.fillMaxSize())}
+                    Row(
+                        modifier = Modifier
+                            .weight(0.5f)
+                            .fillMaxWidth()
+                            .padding(pad, pad / 4, pad, pad / 4)
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            IconButton(onClick = { chartViewModel.shiftFocus(-1) }) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowLeft,
+                                    contentDescription = "left",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
 
-                        Column(modifier = Modifier.weight(8f)) { Text("04/25/26-05/02/26", modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center)}
-                        Column(modifier = Modifier.weight(1f)) { Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "right", modifier = Modifier.fillMaxSize())}
+                        Column(modifier = Modifier.fillMaxHeight().weight(8f),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                            Text(
+                                text = "${
+                                    longToDateTime(
+                                        displayBounds?.first ?: 1)
+                                } - ${
+                                    longToDateTime(
+                                        displayBounds?.second ?: 1
+                                    )
+                                }",
+                                modifier.fillMaxSize().wrapContentHeight(Alignment.CenterVertically),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            IconButton(onClick = { chartViewModel.shiftFocus(1) }) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowRight,
+                                    contentDescription = "right",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
                     }
 
                     // The graph
                     Row(
                         modifier = Modifier
                             .weight(5f)
-                            .fillMaxWidth()
+                            .fillMaxSize()
                     ) {
                         Card(
-                            modifier = Modifier.padding(pad, pad, pad, pad / 2),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                        ) {
-
-//                            val chartData = chartViewModel.logsToChartDataForGraph(logData)
-////                            val chartData =
-////                                listOf(listOf(1.0, 2.5), listOf(2.0, 3.0), listOf(3.0, 0.0), listOf(4.0, 3.0), listOf(5.0, 1.0))
-//
-//                            for (innerList in chartData) {
-//                                for (value in innerList) {
-//                                    //println("" + value)
-//                                }
-//                            }
-//
-//                            // When we get blood work implemented, then we can add this back in
-////                             val scatterData = listOf(emptyList<Double>())
-//
-//                            VicoGraph(Modifier.fillMaxSize(), data = chartData/* , scatterData = scatterData TODO */)
-
-                            LineChart(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 22.dp),
-                                data = remember {
-                                    listOf(
-                                        Line(
-                                            label = "Windows",
-                                            values = listOf(
-                                                100.0,
-                                                84.1,
-                                                70.7,
-                                                59.5,
-                                                50.0,
-                                                42.0,
-                                                35.4,
-                                                29.7,
-                                                25.0,
-                                                21.0,
-                                                17.7,
-                                                14.9,
-                                                12.5,
-                                                10.5,
-                                                8.8,
-                                                7.4,
-                                                6.3,
-                                                5.3,
-                                                4.4,
-                                                3.7,
-                                                3.1,
-                                                2.6,
-                                                2.2,
-                                                1.9,
-                                                1.6
-                                            ),
-                                            color = SolidColor(Color(0xFF23af92)),
-                                            firstGradientFillColor = Color(0xFF2BC0A1).copy(
-                                                alpha = .5f
-                                            ),
-                                            secondGradientFillColor = Color.Transparent,
-                                            strokeAnimationSpec = tween(
-                                                2000,
-                                                easing = EaseInOutCubic
-                                            ),
-                                            gradientAnimationDelay = 1000,
-                                            drawStyle = DrawStyle.Stroke(width = 2.dp),
-                                            curvedEdges = false,
-                                        )
-                                    )
-                                },
-                                animationMode = AnimationMode.Together(delayBuilder = {
-                                    it * 500L
-                                }),
+                            modifier = Modifier
+                                .padding(pad, pad, pad, pad / 2)
+                                .fillMaxSize(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                             )
+                        ) {
+                            if (logs.isEmpty()) {
+                                Text(
+                                    text = "No logs found for this period",
+                                    modifier = Modifier.fillMaxSize().wrapContentHeight(Alignment.CenterVertically),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Center,
+
+                                )
+                            } else {
+                                Chart(
+                                    modelProducer = chartViewModel.modelProducer,
+                                    chartData = chartData,
+                                    bounds = displayBounds,
+                                    modifier = Modifier.padding(pad / 4, pad / 4, pad / 4, pad)
+                                )
+                            }
                         }
 
                     }
