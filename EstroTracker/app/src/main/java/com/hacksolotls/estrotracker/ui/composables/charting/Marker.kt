@@ -27,7 +27,7 @@ val MarkerValueFormatter = DefaultCartesianMarker.ValueFormatter { _, targets ->
     // 1. Get the X (timestamp)
     val date = java.time.Instant.ofEpochMilli(target.x.toLong())
         .atZone(java.time.ZoneId.systemDefault())
-        .format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, HH:00"))
+        .format(java.time.format.DateTimeFormatter.ofPattern("MMM dd"))//, HH:00"))
 
     // 2. Get the Y (dosage level)
     // In Vico, targets for line charts contain 'points'

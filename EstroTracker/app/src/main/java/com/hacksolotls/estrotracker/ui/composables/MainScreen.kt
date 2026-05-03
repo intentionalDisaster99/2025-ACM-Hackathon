@@ -2,6 +2,7 @@ package com.hacksolotls.estrotracker.ui.composables
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,12 +27,14 @@ import com.hacksolotls.estrotracker.data.LogEvent
 import com.hacksolotls.estrotracker.data.util.longToDateTime
 import com.hacksolotls.estrotracker.data.util.millisToLocalDate
 import com.hacksolotls.estrotracker.ui.composables.charting.Chart
+import com.hacksolotls.estrotracker.ui.composables.charting.ChartSpanDialog
 import com.hacksolotls.estrotracker.ui.theme.TrackerTheme
 import com.hacksolotls.estrotracker.ui.util.PreferencesManager
 import com.hacksolotls.estrotracker.ui.viewmodels.ChartViewModel
 import com.hacksolotls.estrotracker.ui.viewmodels.LogDialogViewModel
 import com.hacksolotls.estrotracker.ui.viewmodels.MainScreenViewModel
 import com.hacksolotls.estrotracker.ui.viewmodels.UiEvent
+import com.hacksolotls.estrotracker.ui.viewmodels.ViewSpan
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
@@ -105,7 +108,8 @@ fun MainScreen(
         } ?: emptyList()
     }
 
-
+    // -------------- Span Changing -----------------
+    var showSpanDialog by remember { mutableStateOf(false) }
 
     TrackerTheme(darkTheme = isDarkMode) {
 
@@ -168,7 +172,7 @@ fun MainScreen(
                             }
                         }
 
-                        Column(modifier = Modifier.fillMaxHeight().weight(8f),
+                        Column(modifier = Modifier.fillMaxHeight().weight(8f).clickable { showSpanDialog = true },
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                             ) {
@@ -316,6 +320,13 @@ fun MainScreen(
                             }
                         }
                     }
+                }
+
+                if (showSpanDialog) {
+                    ChartSpanDialog(
+                        onDismiss = {span -> showSpanDialog = false; chartViewModel.updateSpan(span ?: ViewSpan.Week) },
+                        span = chartViewModel.displayConfig.value?.span ?: ViewSpan.Week
+                    )
                 }
 
                 // Show the add log dialog when the user clicks the button

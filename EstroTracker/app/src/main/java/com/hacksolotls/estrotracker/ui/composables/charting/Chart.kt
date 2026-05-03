@@ -84,6 +84,7 @@ fun Chart(
                                     Brush.verticalGradient(listOf(MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f), Color.Transparent))
                                 )
                             ),
+                        interpolator = LineCartesianLayer.Interpolator.catmullRom(alpha = 0.2f)
                     )
                 ),
                 rangeProvider = rangeProvider // This forces the X-axis view
