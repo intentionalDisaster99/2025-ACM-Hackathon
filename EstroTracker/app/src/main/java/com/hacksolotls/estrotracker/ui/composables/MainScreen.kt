@@ -40,7 +40,6 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.collections.emptyList
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -50,352 +49,223 @@ fun MainScreen(
     chartViewModel: ChartViewModel = hiltViewModel(),
     navController: NavController
 ) {
-
-    // Observing the log data so that we can actually access it
-    //val logData by chartViewModel.logData.observeAsState(emptyList())
-
-    // Get the Context using LocalContext
     val context = LocalContext.current
-
-    // Might could have hilt perform this instead if more entities need access to Prefs
-    // Initialize PreferencesManager with the current Context
-    val preferencesManager = PreferencesManager(context)
-
-    // Retrieve saved values from SharedPreferences
+    val preferencesManager = remember { PreferencesManager(context) }
     val name by remember { mutableStateOf(preferencesManager.getName() ?: "name") }
     val isDarkMode by remember { mutableStateOf(preferencesManager.isDarkMode()) }
 
-    // String to append next dose to
-    val dayDisplayString: String = "Next dose: "
-
-    // Tells the viewModel to start updating the most recent log
-    LaunchedEffect(Unit) {
-        viewModel.getMostRecentLog()
-    }
-
-    // Store the most recent log
     val log by viewModel.log.observeAsState()
-
-    // The scope for the drawer
-    val scope = rememberCoroutineScope()
+    val state = logDialogViewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    val pad = 16.dp
+    // Chart Data
+    val displayBounds by chartViewModel.displayBounds.observeAsState()
+    val logs by chartViewModel.calculationData.observeAsState(emptyList())
+    val chartData = remember(logs, displayBounds) {
+        displayBounds?.let { bounds -> chartViewModel.logsToChartData(logs, bounds) } ?: emptyList()
+    }
 
-    // current LogState
-    val state = logDialogViewModel.state.collectAsState()
-
-    // Snackbar stuff
-    val snackbarHostState = remember { SnackbarHostState() }
+    var showSpanDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.getMostRecentLog()
         logDialogViewModel.events.collect { event ->
-            when (event) {
-                is UiEvent.ShowSnackBar -> {
-                    snackbarHostState.showSnackbar(event.message)
-                }
-            }
+            if (event is UiEvent.ShowSnackBar) snackbarHostState.showSnackbar(event.message)
         }
     }
 
-    // -----Chart stuff-----
-    val displayBounds by chartViewModel.displayBounds.observeAsState()
-    val logs by chartViewModel.calculationData.observeAsState(emptyList())
-
-    val chartData = remember(logs, displayBounds) {
-        displayBounds?.let { bounds ->
-            chartViewModel.logsToChartData(logs, bounds)
-        } ?: emptyList()
-    }
-
-    // -------------- Span Changing -----------------
-    var showSpanDialog by remember { mutableStateOf(false) }
-
     TrackerTheme(darkTheme = isDarkMode) {
-
         ModalNavigationDrawer(
-            drawerContent = {
-                DrawerContent(navController, drawerState)
-            },
+            drawerContent = { DrawerContent(navController, drawerState) },
             drawerState = drawerState,
             gesturesEnabled = false
         ) {
             Scaffold(
                 snackbarHost = { SnackbarHost(snackbarHostState) },
+                containerColor = MaterialTheme.colorScheme.surface,
                 topBar = {
                     CenterAlignedTopAppBar(
                         navigationIcon = {
-                            IconButton(onClick = {
-                                navController.navigate("settings")
-//                                scope.launch {
-//                                    drawerState.apply {
-//                                        if (isClosed) open() else close()
-//                                    }
-//                                }
-                            }) {
-                                Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
+                            IconButton(onClick = { navController.navigate("settings") }) {
+                                Icon(Icons.Default.Settings, contentDescription = "Settings")
                             }
                         },
-                        title = { Text(text = "Welcome, $name") },
+                        title = { Text("Welcome, $name") },
                         actions = {
-                            IconButton(onClick = {
-                                logDialogViewModel.onEvent(LogEvent.ShowDialog)
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.DateRange,
-                                    contentDescription = "Log"
-                                )
+                            IconButton(onClick = { logDialogViewModel.onEvent(LogEvent.ShowDialog) }) {
+                                Icon(Icons.Default.DateRange, contentDescription = "Log")
                             }
                         }
                     )
                 }
             ) { padding ->
                 Column(
-                    Modifier
+                    modifier = Modifier
                         .padding(padding)
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    // --- Date Selection Row ---
                     Row(
                         modifier = Modifier
-                            .weight(0.5f)
                             .fillMaxWidth()
-                            .padding(pad, pad / 4, pad, pad / 4)
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            IconButton(onClick = { chartViewModel.shiftFocus(-1) }) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowLeft,
-                                    contentDescription = "left",
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
+                        IconButton(onClick = { chartViewModel.shiftFocus(-1) }) {
+                            Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Previous")
                         }
 
-                        Column(modifier = Modifier.fillMaxHeight().weight(8f).clickable { showSpanDialog = true },
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                            Text(
-                                text = "${
-                                    longToDateTime(
-                                        displayBounds?.first ?: 1)
-                                } - ${
-                                    longToDateTime(
-                                        displayBounds?.second ?: 1
-                                    )
-                                }",
-                                modifier.fillMaxSize().wrapContentHeight(Alignment.CenterVertically),
-                                textAlign = TextAlign.Center,
-                            )
-                        }
-                        Column(modifier = Modifier.weight(1f)) {
-                            IconButton(onClick = { chartViewModel.shiftFocus(1) }) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowRight,
-                                    contentDescription = "right",
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-                        }
-                    }
-
-                    // The graph
-                    Row(
-                        modifier = Modifier
-                            .weight(5f)
-                            .fillMaxSize()
-                    ) {
-                        Card(
+                        Box(
                             modifier = Modifier
-                                .padding(pad, pad, pad, pad / 2)
-                                .fillMaxSize(),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer
-                            )
+                                .weight(1f)
+                                .clickable { showSpanDialog = true },
+                            contentAlignment = Alignment.Center
                         ) {
-                            if (logs.isEmpty()) {
-                                Text(
-                                    text = "No logs found for this period",
-                                    modifier = Modifier.fillMaxSize().wrapContentHeight(Alignment.CenterVertically),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    textAlign = TextAlign.Center,
-
-                                )
-                            } else {
-                                Chart(
-                                    modelProducer = chartViewModel.modelProducer,
-                                    chartData = chartData,
-                                    bounds = displayBounds,
-                                    modifier = Modifier.padding(pad / 4, pad / 4, pad / 4, pad)
-                                )
-                            }
+                            Text(
+                                text = "${longToDateTime(displayBounds?.first ?: 1)} - ${longToDateTime(displayBounds?.second ?: 1)}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center
+                            )
                         }
 
+                        IconButton(onClick = { chartViewModel.shiftFocus(1) }) {
+                            Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next")
+                        }
                     }
 
-                    // The calculator button
-                    Row(
+                    // --- The Graph (Main Content) ---
+                    Card(
                         modifier = Modifier
-                            .weight(1f)
                             .fillMaxWidth()
-                            .background(Color.Transparent)
+                            .weight(1f), // Takes up available space
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
                     ) {
-                        // A button to take them to the calculator
+                        if (logs.isEmpty()) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("No logs found for this period", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        } else {
+                            Chart(
+                                modelProducer = chartViewModel.modelProducer,
+                                chartData = chartData,
+                                bounds = displayBounds,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
+
+                    // --- Next Expected Dose Card ---
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                    ) {
+                        val displayString = if (log == null) {
+                            "No recent logs found"
+                        } else {
+                            val time = Instant.ofEpochMilli(log!!.timestamp.toEpochMilli() + (log?.daysTilNext ?: 0) * 86400000L)
+                                .atZone(ZoneId.of("UTC"))
+                                .toLocalDate()
+                                .atStartOfDay(ZoneId.systemDefault())
+                                .toInstant()
+                                .toEpochMilli()
+                            "Next dose: " + millisToLocalDate(time).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))
+                        }
+
+                        Text(
+                            text = displayString,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.CenterHorizontally),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
+
+                    // --- Bottom Buttons ---
+                    // --- Bottom Buttons ---
+                    Column(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Button(
                             onClick = { navController.navigate("calculator") },
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp, 16.dp, 16.dp, 8.dp),
-                            shape = RoundedCornerShape(8.dp)
+                                .fillMaxWidth()
+                                .height(52.dp),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text(text = "Calculator")
+                            Text("Calculator")
                         }
-                    }
 
-                    // The calendar button
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                    ) {
-                        // A button to take them to the calculator
                         Button(
                             onClick = { navController.navigate("calendar") },
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp, 16.dp, 16.dp, 8.dp),
-                            shape = RoundedCornerShape(8.dp)
+                                .fillMaxWidth()
+                                .height(52.dp),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text(text = "Calendar")
-                        }
-                    }
-
-                    // Next expected display
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                    ) {
-                        Card(
-                            modifier = Modifier.padding(pad, pad, pad, pad),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer
-                            )
-                        ) {
-                            // Telling them what it is
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp)  // Optional, to add some space around the text
-                            ) {
-
-                                // Todo get the next date
-
-                                val displayString = if (log == null) {
-                                    "We couldn't read your logs. Sorry!"
-                                } else {
-                                    var time = log!!.timestamp.toEpochMilli()
-                                    time = Instant.ofEpochMilli(
-                                        time + (log?.daysTilNext ?: 0) * 86400000
-                                    )
-                                        .atZone(ZoneId.of("UTC")) // Convert to ZonedDateTime in UTC
-                                        .toLocalDate() // Extract the date part (ignoring the time)
-                                        .atStartOfDay(ZoneId.systemDefault())
-                                        .toInstant()
-                                        .toEpochMilli()
-                                    dayDisplayString + millisToLocalDate(time).format(
-                                        DateTimeFormatter.ofPattern("MM/dd/yyyy")
-                                    )
-                                }
-
-
-                                Text(
-                                    text = displayString,
-                                    modifier = Modifier.align(Alignment.Center),
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                            }
+                            Text("Calendar")
                         }
                     }
                 }
 
+                // Dialogs & Permissions
                 if (showSpanDialog) {
                     ChartSpanDialog(
-                        onDismiss = {span -> showSpanDialog = false; chartViewModel.updateSpan(span ?: ViewSpan.Week) },
+                        onDismiss = { span ->
+                            showSpanDialog = false
+                            chartViewModel.updateSpan(span ?: ViewSpan.Week)
+                        },
                         span = chartViewModel.displayConfig.value?.span ?: ViewSpan.Week
                     )
                 }
 
-                // Show the add log dialog when the user clicks the button
                 if (state.value.isAddingLog) {
-                    UpsertLogDialog(
-                        state = state.value,
-                        onEvent = logDialogViewModel::onEvent,
-                        modifier = Modifier
-                    )
+                    UpsertLogDialog(state = state.value, onEvent = logDialogViewModel::onEvent)
                 }
-
-                NotificationPermissionRequester(
-                    onPermissionGranted = {
-                        println("Notification permission was granted!")
-                        // Now it's safe to schedule notifications
-                    },
-                    onPermissionDenied = {
-                        println("Notification permission was denied. Cannot show reminders.")
-                        // Inform the user, maybe guide them to app settings
-                    }
-                )
             }
         }
     }
 }
 
-
 @Composable
 fun DrawerContent(navController: NavController, drawerState: DrawerState) {
     val scope = rememberCoroutineScope()
 
-
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth(0.4f) // Set width to 75% of the screen
-            .fillMaxHeight()
-            .padding(end = 8.dp), // Padding to prevent clipping
-        shape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp), // Rounded corners
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        shadowElevation = 8.dp
+    ModalDrawerSheet(
+        modifier = Modifier.fillMaxWidth(0.75f), // Standard drawer width
+        drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(0.3f)
-                .fillMaxHeight()
-                .padding(16.dp)
+        Spacer(Modifier.height(24.dp))
+        Text(
+            "Menu",
+            modifier = Modifier.padding(horizontal = 28.dp),
+            style = MaterialTheme.typography.headlineSmall
         )
+        Spacer(Modifier.height(16.dp))
 
-        {
-            Text(text = "Stuffs", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(16.dp))
-
-
-            // Navigation Options
-            NavigationDrawerItem(label = { Text("Calendar") }, selected = false, onClick = {
-                scope.launch { drawerState.close() }
-                navController.navigate("calendar")
-            })
-
-            NavigationDrawerItem(label = { Text("Calculator") }, selected = false, onClick = {
-                scope.launch { drawerState.close() }
-                navController.navigate("calculator")
-            })
-
-            NavigationDrawerItem(label = { Text("Settings") }, selected = false, onClick = {
-                scope.launch { drawerState.close() }
-                navController.navigate("settings")
-            })
-        }
+        NavigationDrawerItem(
+            label = { Text("Calendar") },
+            selected = false,
+            onClick = { scope.launch { drawerState.close() }; navController.navigate("calendar") },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+        NavigationDrawerItem(
+            label = { Text("Calculator") },
+            selected = false,
+            onClick = { scope.launch { drawerState.close() }; navController.navigate("calculator") },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+        NavigationDrawerItem(
+            label = { Text("Settings") },
+            selected = false,
+            onClick = { scope.launch { drawerState.close() }; navController.navigate("settings") },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
     }
 }
-

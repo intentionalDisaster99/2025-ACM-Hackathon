@@ -1,120 +1,120 @@
 package com.hacksolotls.estrotracker.ui.composables
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hacksolotls.estrotracker.ui.theme.TrackerTheme
 import com.hacksolotls.estrotracker.ui.util.PreferencesManager
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController) {
-
-    // Get the Context using LocalContext
     val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
 
-    // Initialize PreferencesManager with the current Context
-    val preferencesManager = PreferencesManager(context)
-
-    // Retrieve saved values from SharedPreferences
     var name by remember { mutableStateOf(preferencesManager.getName() ?: "") }
     var isDarkMode by remember { mutableStateOf(preferencesManager.isDarkMode()) }
 
     TrackerTheme(darkTheme = isDarkMode) {
-
-        // Function to simulate the "Go Home" button behavior
-        fun onGoHomeClick() {
-            navController.navigate("home")
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Dark Mode Switch
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween, // Space between elements
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Dark Mode",
-                    style = TextStyle(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .wrapContentWidth(Alignment.End) // Right-aligned text
-                )
-
-                // Dark Mode Switch
-                Switch(
-                    checked = isDarkMode,
-                    onCheckedChange = { newValue ->
-                        isDarkMode = newValue
-                        preferencesManager.saveDarkMode(newValue) // Save when changed
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
                     },
-                    modifier = Modifier.padding(start = 8.dp)
+                    title = { Text("Settings") }
                 )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Name Input Field
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween, // Space between elements
-                verticalAlignment = Alignment.CenterVertically
+            },
+            containerColor = MaterialTheme.colorScheme.surface
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp), // Consistent side margins
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp) // Auto-spacing between items
             ) {
-                Text(
-                    text = "Name",
-                    style = TextStyle(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.secondary,
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Dark Mode Row
+                Row(
                     modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .wrapContentWidth(Alignment.Start)
-                )
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Dark Mode",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
-                // TODO This needs to be updated to make the text show in landscape mode on all devices
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { newName ->
-                        name = newName
-                        preferencesManager.saveName(newName)
-                    },
-                    textStyle = TextStyle(color = MaterialTheme.colorScheme.secondary),
+                    Switch(
+                        checked = isDarkMode,
+                        onCheckedChange = { newValue ->
+                            isDarkMode = newValue
+                            preferencesManager.saveDarkMode(newValue)
+                        }
+                    )
+                }
+
+                // Name Input Row
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth(0.6f)
-                        .fillMaxHeight(0.075f)
-                        .height(56.dp),
-                    placeholder = { Text(text = "Enter your name") },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    isError = name.isEmpty(),
-                    label = { Text(text = "Name") }
-                )
-            }
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Name",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(0.3f) // Takes up 30% space
+                    )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { newName ->
+                            name = newName
+                            preferencesManager.saveName(newName)
+                        },
+                        modifier = Modifier.weight(0.7f), // Takes up remaining 70%
+                        placeholder = { Text("Enter your name") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        isError = name.isEmpty()
+                    )
+                }
 
-            // Button to navigate Home
-            Button(
-                onClick = { onGoHomeClick() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Go Home")
+                Spacer(modifier = Modifier.weight(1f)) // Pushes the button to the bottom
+
+                // Navigation Button
+                Button(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(text = "Go Home")
+                }
             }
         }
     }
