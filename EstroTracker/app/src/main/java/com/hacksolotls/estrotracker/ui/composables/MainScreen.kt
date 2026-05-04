@@ -187,7 +187,6 @@ fun MainScreen(
                     }
 
                     // --- Bottom Buttons ---
-                    // --- Bottom Buttons ---
                     Column(
                         modifier = Modifier.padding(bottom = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)

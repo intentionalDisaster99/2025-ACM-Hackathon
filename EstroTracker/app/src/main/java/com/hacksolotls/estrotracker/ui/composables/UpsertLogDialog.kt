@@ -101,6 +101,8 @@ fun UpsertLogDialog(
                     }
                 )
 
+                Spacer(modifier = Modifier.height(10.dp))
+
                 /* --------------------- Date Picker --------------------- */
                 TextField(
                     value = millisToLocalDate(selectedDate).format(

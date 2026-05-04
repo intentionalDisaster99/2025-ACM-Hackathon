@@ -2,19 +2,29 @@ package com.hacksolotls.estrotracker.ui.composables.charting
 
 import android.R
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -53,33 +64,31 @@ fun ChartSpanDialog(onDismiss: (ViewSpan?) -> Unit, span: ViewSpan) {
 
                 val options = listOf("2 weeks", "1 month", "3 Months")
 
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        // 1. This forces the row to be exactly as tall as the tallest child
-                        .height(IntrinsicSize.Min)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     options.forEachIndexed { index, label ->
-                        SegmentedButton(
-                            modifier = Modifier,
-                                // 3. fillMaxHeight() ensures every button stretches to match the row's height
-                                //.fillMaxHeight(),
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                        val isSelected = selectedIndex == index
+                        val containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surfaceVariant
+                        val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                        else MaterialTheme.colorScheme.onSurfaceVariant
+
+                        Surface(
                             onClick = { selectedIndex = index },
-                            selected = index == selectedIndex,
-                            label = {
-                                Text(
-                                    text = label,
-                                    maxLines = 1,
-                                    softWrap = false,
-                                    // This prevents the text from ever triggering an ellipsis
-                                    // by scaling it down to a minimum size if necessary
-                                    style = MaterialTheme.typography.labelMedium.copy(
-                                        platformStyle = PlatformTextStyle(includeFontPadding = false)
-                                    )
-                                )
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(8.dp),
+                            color = containerColor,
+                            contentColor = contentColor
+                        ) {
+                            Box(
+                                modifier = Modifier.padding(12.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = label, style = MaterialTheme.typography.labelLarge)
                             }
-                        )
+                        }
                     }
                 }
             }

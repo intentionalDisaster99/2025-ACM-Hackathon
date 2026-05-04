@@ -28,7 +28,10 @@ fun SettingsScreen(navController: NavController) {
             topBar = {
                 CenterAlignedTopAppBar(
                     navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
+                        IconButton(onClick = { navController.popBackStack(
+                            route = "home", // The route name you defined in your NavHost
+                            inclusive = false // Set to false to keep 'home', true to remove it too
+                        ) }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
@@ -106,7 +109,10 @@ fun SettingsScreen(navController: NavController) {
 
                 // Navigation Button
                 Button(
-                    onClick = { navController.popBackStack() },
+                    onClick = { navController.popBackStack(
+                        route = "home", // The route name you defined in your NavHost
+                        inclusive = false // Set to false to keep 'home', true to remove it too
+                    ) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
